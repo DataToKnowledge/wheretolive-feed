@@ -8,10 +8,6 @@ lazy val commons = Seq(
   )
 )
 
-libraryDependencies ++= Seq(
-  "com.rometools" % "rome" % "1.5.1"
-)
-
 lazy val root = (project in file("."))
   .settings(commons :_*)
   .settings(

@@ -1,6 +1,6 @@
 import java.net.URL
 
-import com.rometools.rome.io.{XmlReader, SyndFeedInput}
+import com.rometools.rome.io.{SyndFeedInput, XmlReader}
 
 /**
  * Created by fabiofumarola on 08/08/15.
