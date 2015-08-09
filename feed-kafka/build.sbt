@@ -17,7 +17,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
   "com.typesafe.scala-logging" %% "scala-logging-api" % "2.1.2",
   "org.slf4j" % "slf4j-log4j12" % "1.7.12",
-  "com.rometools" % "rome" % "1.5.1"
+  "com.rometools" % "rome" % "1.5.1",
+  "org.apache.kafka" % "kafka-clients" % "0.8.2.1"
 )
 
 Revolver.settings

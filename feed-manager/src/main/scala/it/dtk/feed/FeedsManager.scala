@@ -1,5 +1,6 @@
 package it.dtk.feed
 
+import akka.actor.PoisonPill
 import akka.persistence.{ SnapshotOffer, PersistentActor }
 import it.dtk.feed.Model._
 
@@ -9,6 +10,7 @@ import it.dtk.feed.Model._
 object FeedsManager {
 
   case class Manage(feed: FeedSource)
+  case class Ack(msg: String)
   case class UnManage(feed: FeedSource)
   object ListFeeds
 }
@@ -40,13 +42,15 @@ class FeedsManager extends PersistentActor {
 
     case manage: Manage =>
       persist(manage) { data =>
-        //create the feed manager
+        val downloader = context.actorOf(FeedDownloader.props(data.feed), data.feed.uniqueName)
+        sender ! Ack(s"start managing feed ${data.feed.uniqueName}")
       }
 
     case unmanage: UnManage =>
       persist(unmanage) { data =>
-        //stop the feed manager
         state -= unmanage.feed.uniqueName
+        val child = context.child(data.feed.uniqueName)
+        child.foreach(_ ! PoisonPill)
       }
 
     case "snap" => saveSnapshot(state)
