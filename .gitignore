@@ -51,3 +51,5 @@ logs/
 */application-local.conf
 */RUNNING_PID
 */logs/
+
+/snapshots
