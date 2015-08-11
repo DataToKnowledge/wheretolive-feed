@@ -21,7 +21,7 @@ lazy val api = (project in file("./feed-api"))
   .settings(commons :_*)
   .settings(
     name := "feed-api"
-  )
+  ).dependsOn(kafka,model,manager)
 
 lazy val manager = (project in file("./feed-manager"))
   .settings(commons :_*)
