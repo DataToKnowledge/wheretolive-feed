@@ -9,9 +9,9 @@ import org.joda.time.DateTime
  */
 object Model {
 
-  case class FeedSource(name: String, url: URL, added: Long) {
-    val uniqueName = url.getHost
-  }
+  case class FeedSource(url: String)
+
+  case class FeedInfo(id: String, url: String, added: Long, countUrl: Long = 0)
 
   case class Feed(title: String,
     description: String,

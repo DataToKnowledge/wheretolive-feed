@@ -9,25 +9,23 @@ lazy val commons = Seq(
 )
 
 lazy val root = (project in file("."))
-  .settings(commons :_*)
+  .settings(commons: _*)
   .settings(
     name := "wheretolive-feeder",
     run := {
       (run in Compile).evaluated
     }
-  )aggregate(api,kafka,model,manager)
+  ) aggregate(api, kafka, model, worker)
 
 lazy val api = (project in file("./feed-api"))
-  .settings(commons :_*)
-  .settings(
-    name := "feed-api"
-  ).dependsOn(kafka,model,manager)
+  .settings(commons: _*)
+  .settings(name := "feed-api")
+  .dependsOn(kafka, model, worker)
 
-lazy val manager = (project in file("./feed-manager"))
-  .settings(commons :_*)
-  .settings(
-    name := "feed-manager"
-  ).dependsOn(kafka,model)
+lazy val worker = (project in file("./feed-worker"))
+  .settings(commons: _*)
+  .settings(name := "feed-worker")
+  .dependsOn(kafka, model)
 
 lazy val kafka = (project in file("./feed-kafka"))
   .settings(commons: _*)
@@ -35,7 +33,10 @@ lazy val kafka = (project in file("./feed-kafka"))
   .dependsOn(model)
 
 lazy val model = (project in file("./feed-model"))
-  .settings(commons :_*)
-  .settings(
-    name := "feed-model"
-  )
+  .settings(commons: _*)
+  .settings(name := "feed-model")
+
+lazy val nlp = (project in file("./feed-nlp"))
+  .settings(commons: _*)
+  .settings(name := "feed-nlp")
+  .dependsOn(model)

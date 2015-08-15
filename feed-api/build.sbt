@@ -32,6 +32,9 @@ libraryDependencies ++= {
   val akka = Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaV,
     "com.typesafe.akka" %% "akka-slf4j" % akkaV,
+    "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.12",
+    "org.iq80.leveldb" % "leveldb" % "0.7",
+    "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
     "com.typesafe.akka" %% "akka-contrib" % akkaV,
     "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
     "com.typesafe.scala-logging" %% "scala-logging-api" % "2.1.2",
@@ -49,6 +52,6 @@ libraryDependencies ++= {
   spray ++ akka ++ test ++ commons
 }
 
-javaOptions += "-Xms512m -Xmx2G"
 Revolver.settings
-
+fork in Test := true
+fork := true
