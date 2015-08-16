@@ -58,7 +58,6 @@ class FeedsManager extends PersistentActor {
 
     case Add(source) =>
       log.info("processing add {}", source)
-      println(s"processing add ${source}")
       val result = if (!state.feeds.contains(source.id)) {
         state = state.copy(feeds = state.feeds + (source.id -> source))
         startWorker(source)
