@@ -2,34 +2,27 @@ package it.dtk.feed.worker
 
 import java.net.URL
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import akka.actor.{ Actor, Props }
+import akka.event.Logging
 import com.rometools.rome.io.{ SyndFeedInput, XmlReader }
-import it.dtk.feed.FeedParser
-import it.dtk.feed.Model.{ FeedInfo, FeedSource }
-import it.dtk.feed.manager.FeedsManager.ExtractedUrls
+import it.dtk.feed.{ FeedSchedulerUtil, FeedParser }
+import it.dtk.feed.Model.FeedInfo
 import it.dtk.kafka.FeedProducerKafka
 import net.ceedubs.ficus.Ficus._
 
 import scala.collection.JavaConversions._
-import scala.concurrent.duration._
 
-/**
- * Created by fabiofumarola on 15/08/15.
- */
 object FeedWorker {
 
-  def props(feed: FeedInfo) = Props(new FeedWorker(feed))
+  case class Result(feed: FeedInfo)
 
-  case class InternalState(feed: FeedInfo, lastUrls: Set[String] = Set.empty)
+  def props(feed: FeedInfo) = Props(new FeedWorker(feed))
 }
 
-class FeedWorker(feed: FeedInfo) extends Actor with ActorLogging {
+class FeedWorker(val feed: FeedInfo) extends Actor {
   import FeedWorker._
+  val log = Logging(context.system.eventStream, this.getClass.getCanonicalName)
   val start = "Start"
-
-  var state = InternalState(feed)
-  val feedScheduler = new FeedScheduler()
-  val httpTimeout = 1 minute
   val config = context.system.settings.config
 
   val producer = new FeedProducerKafka(
@@ -41,34 +34,30 @@ class FeedWorker(feed: FeedInfo) extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case start =>
-      log.info("start worker for feed {} with url {}", state.feed.id, state.feed.url)
-      val feedInput = new SyndFeedInput()
-
-      var countNew = -1
+      log.info("start worker for feed {} with url {}", feed.id, feed.url)
 
       try {
-        val feedData = feedInput.build(new XmlReader(new URL(state.feed.url)))
-        val parsedFeeds = feedData.getEntries.map(FeedParser(_))
+        val feedInput = new SyndFeedInput()
+        val feedData = feedInput.build(new XmlReader(new URL(feed.url)))
+        val filteredFeeds = feedData.getEntries.map(FeedParser(_))
+          .filter(f => !feed.lastUrls.contains(f.uri))
         //send to kafka
-        parsedFeeds.foreach(producer.sendSync(_))
+        filteredFeeds.foreach(producer.sendSync(_))
 
-        val urls = parsedFeeds.map(_.uri).toSet
-        context.parent ! ExtractedUrls(state.feed.id, urls.size)
+        val filteredUrls = filteredFeeds.map(_.uri).toSet
+        val nextScheduler = FeedSchedulerUtil.when(feed.fScheduler, filteredUrls.size)
 
-        countNew = (urls diff state.lastUrls).size
-        state = state.copy(lastUrls = urls)
-        log.info("extracted {} new urls from {}", countNew, feed.id)
+        context.parent ! Result(feed.copy(
+          lastUrls = filteredUrls,
+          countUrl = feed.countUrl + filteredUrls.size,
+          fScheduler = nextScheduler))
 
       } catch {
         case ex: Throwable =>
-          log.error(ex, "error parsing feed {}", state.feed.id)
-          feedScheduler.gotException()
-          throw ex //send the exception to the manager
+          log.error(ex, "error parsing feed {}", feed.id)
+          val nextScheduler = FeedSchedulerUtil.gotException(feed.fScheduler)
+          context.parent ! Result(feed.copy(fScheduler = nextScheduler))
       }
-
-      import context.dispatcher
-      val when = feedScheduler.when(countNew)
-      context.system.scheduler.scheduleOnce(when, self, start)
-      log.info("scheduled feed extraction for {} in {} seconds", state.feed.id, when toSeconds)
+      context.stop(self)
   }
 }

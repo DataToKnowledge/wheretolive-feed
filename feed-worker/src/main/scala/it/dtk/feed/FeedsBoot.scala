@@ -1,6 +1,6 @@
 package it.dtk.feed
 
-import akka.actor.ActorSystem
+import akka.actor.{Props, ActorSystem}
 import akka.event.Logging
 import com.typesafe.config.ConfigFactory
 import it.dtk.feed.manager.FeedsManager
@@ -33,8 +33,8 @@ object FeedsBoot {
     val system = ActorSystem(name, config)
     val logApp = Logging(system.eventStream, this.getClass.getCanonicalName)
     val managerName = config.as[String]("manager")
+    val manager = system.actorOf(Props(classOf[FeedsManager]), managerName)
 
-    val manager = system.actorOf(FeedsManager.props, managerName)
     val path = FeedsManager.actorSelection(name, interface, port, managerName)
     logApp.info("Feed Manager ready at path {}", path)
   }
