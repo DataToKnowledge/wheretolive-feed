@@ -35,7 +35,8 @@ class FeedsManager extends PersistentActor with ActorLogging {
    */
   override val supervisorStrategy =
     OneForOneStrategy() {
-      case _ => Restart
+      case _ =>
+        Restart
     }
 
   override def receiveRecover: Receive = {
