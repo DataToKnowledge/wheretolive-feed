@@ -4,7 +4,6 @@ import akka.actor.{ Props, ActorRef, ActorSystem }
 import akka.event.Logging
 import com.typesafe.config.ConfigFactory
 import it.dtk.feed.Model.FeedSource
-import it.dtk.feed.manager.FeedsManager
 import net.ceedubs.ficus.Ficus._
 import akka.io.IO
 import spray.can.Http
@@ -36,7 +35,7 @@ object Boot extends App {
   logApp.info("started http api service with bind {} on port {}", interface, port)
 }
 
-import manager.FeedsManager._
+//import manager.SmartFeedsManager._
 //  feedsManagerActor ! Add(FeedSource("baritoday", "http://www.baritoday.it/rss", 1439646561160L))
 //implicit val timeout = akka.util.Timeout(5 seconds)
 //val result = (feedsManagerActor ? FeedsList()).mapTo[FeedsList]

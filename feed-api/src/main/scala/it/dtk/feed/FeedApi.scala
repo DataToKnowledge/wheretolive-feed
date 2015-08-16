@@ -30,6 +30,12 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
           complete(addFeed(feed))
         }
       }
+    } ~ path("add" / "list") {
+      post {
+        entity(as[List[FeedSource]]) { list =>
+          complete(addFeeds(list))
+        }
+      }
     } ~ path("list") {
       get {
         complete(listFeeds())
@@ -38,14 +44,12 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
       get {
         complete(delFeed(id))
       }
-    } ~ path("test") {
-      get {
-        complete(FeedSource("http://www.baritoday.it/rss"))
-      }
     }
   }
 
   def addFeed(feed: FeedSource): Future[String]
+
+  def addFeeds(feeds: List[FeedSource]): Future[List[String]]
 
   def listFeeds(): Future[FeedsList]
 
@@ -81,6 +85,11 @@ class FeedService(val feedsManagerActor: ActorSelection) extends Actor with Feed
     } catch {
       case ex: Throwable => Future.failed[String](ex)
     }
+  }
+
+  override def addFeeds(list: List[FeedSource]): Future[List[String]] = {
+    val result = list.map(addFeed(_))
+    Future.sequence(result)
   }
 
   override def delFeed(id: String): Future[String] =

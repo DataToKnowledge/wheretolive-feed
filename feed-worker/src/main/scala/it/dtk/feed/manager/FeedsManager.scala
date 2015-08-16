@@ -1,15 +1,16 @@
 package it.dtk.feed.manager
 
-import akka.actor.{ PoisonPill, Props, Terminated, ActorLogging }
-import akka.persistence.{ RecoveryCompleted, SnapshotOffer, PersistentActor }
+import akka.actor.{PoisonPill, Props, Terminated}
+import akka.event.Logging
+import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
 import it.dtk.feed.Model._
 import it.dtk.feed.worker.FeedWorker
-import org.joda.time.DateTime
 import net.ceedubs.ficus.Ficus._
+import org.joda.time.DateTime
 
 object FeedsManager {
 
-  def props() = Props(classOf[FeedsManager])
+  //def props() = Props(classOf[FeedsManager])
 
   def actorSelection(system: String, host: String, port: Int, name: String): String = {
     val actorPath = s"akka.tcp://$system@$host:$port/user/$name"
@@ -19,23 +20,28 @@ object FeedsManager {
   case class Add(source: FeedInfo)
   case class Delete(id: String)
   case class FeedsList(feeds: Map[String, FeedInfo] = Map.empty)
-  case class ExtractedUrls(id: String, count: Int)
 
   case class InternalState(feeds: Map[String, FeedInfo] = Map.empty)
 }
 
-class FeedsManager extends PersistentActor with ActorLogging {
+class FeedsManager extends PersistentActor {
   import FeedsManager._
   import akka.actor.OneForOneStrategy
   import akka.actor.SupervisorStrategy._
+  val log = Logging(context.system.eventStream, this.getClass.getCanonicalName)
+
+  case class Next(id: String)
+  implicit val executor = context.dispatcher
 
   var state = InternalState()
+
   /*
    * Always restart a Feed actor if anything goes wrong
    */
   override val supervisorStrategy =
     OneForOneStrategy() {
-      case _ => Restart
+      case _ =>
+        Restart
     }
 
   override def receiveRecover: Receive = {
@@ -49,6 +55,7 @@ class FeedsManager extends PersistentActor with ActorLogging {
   }
 
   override def receiveCommand: Receive = {
+
     case Add(source) =>
       log.info("processing add {}", source)
       println(s"processing add ${source}")
@@ -80,22 +87,26 @@ class FeedsManager extends PersistentActor with ActorLogging {
       log.debug("got feedlist request")
       sender ! FeedsList(state.feeds)
 
-    case ExtractedUrls(id, count) =>
-      val info = state.feeds.get(id)
-      info.foreach { feed =>
-        val increment = feed.countUrl + count
-        state = state.copy(feeds = state.feeds + (id -> feed.copy(countUrl = increment)))
-      }
+    case FeedWorker.Result(feed) =>
+      //update feed info
+      state = state.copy(feeds = state.feeds + (feed.id -> feed))
+      saveSnapshot(state)
+      log.info("got {} url from {} next analysis in {} minutes", feed.lastUrls.size, feed.id, feed.fScheduler.time toMinutes)
+      context.system.scheduler.scheduleOnce(feed.fScheduler.time, self, Next(feed.id))
+
+    case Next(id) =>
+      val optFeed = state.feeds.get(id)
+      optFeed.foreach(f => startWorker(f))
 
     case Terminated(actor) =>
-      log.error("actor {} was terminated for an error", actor.path.name)
+      log.debug("actor {} was terminated for an error", actor.path.name)
 
     case x: Any =>
       println(x)
   }
 
   def startWorker(source: FeedInfo): Unit = {
-    val worker = context.actorOf(FeedWorker.props(source), source.id)
+    val worker = context.actorOf(FeedWorker.props(source), name = source.id)
     context.watch(worker)
     log.info("start monitoring {}", source)
   }
