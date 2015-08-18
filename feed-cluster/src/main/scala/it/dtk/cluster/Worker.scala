@@ -35,7 +35,10 @@ class Worker extends Actor {
   // subscribe to cluster changes, MemberUp
   // re-subscribe when restart
   override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
-  override def postStop(): Unit = cluster.unsubscribe(self)
+  override def postStop(): Unit = {
+    producer.close()
+    cluster.unsubscribe(self)
+  }
 
   val producer = new FeedProducerKafka(
     topic = config.as[String]("kafka.topic"),
@@ -43,6 +46,7 @@ class Worker extends Actor {
     brokersList = config.as[String]("kafka.brokers"))
 
   override def receive: Receive = {
+
     case msg: FeedJob =>
       val executor = context.actorOf(Props(new WorkExecutor(producer)))
       executor forward msg
@@ -58,6 +62,7 @@ class Worker extends Actor {
     if (member.hasRole(masterRole))
       context.actorSelection(RootActorPath(member.address) / "user" / masterRole) ! BackendRegistration
   }
+
 }
 
 class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
@@ -73,16 +78,23 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
         val rawFeeds = reader.build(new XmlReader(new URL(source.url)))
         val filtered = rawFeeds.getEntries.map(FeedParser(_))
           .filterNot(f => source.lastUrls.contains(f.uri))
+
+        filtered.foreach(f => log.debug(f.toString))
+
         filtered.foreach(producer.sendSync(_))
 
-        val urls = filtered.map(_.uri).toSet
-        val nextScheduler = FeedSchedulerUtil.when(source.fScheduler, urls.size)
-        log.info("extracted {} urls for feed {}", urls.size, source.url)
+        val filteredUrl = filtered.map(_.uri).toSet
+        val nextScheduler = FeedSchedulerUtil.when(source.fScheduler, filteredUrl.size)
+        log.info("extracted {} urls for feed {}", filteredUrl.size, source.url)
+
+        val nextIterationUrls = if (filteredUrl.isEmpty)
+          source.lastUrls
+        else filteredUrl
 
         sender() ! FeedJobResult(
           source.copy(
-            lastUrls = urls,
-            countUrl = source.countUrl + urls.size,
+            lastUrls = nextIterationUrls,
+            countUrl = source.countUrl + filteredUrl.size,
             fScheduler = nextScheduler))
       }
       catch {
@@ -91,7 +103,7 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
           val nextScheduler = FeedSchedulerUtil.gotException(source.fScheduler)
           sender() ! FeedJobResult(source.copy(fScheduler = nextScheduler))
       }
-      context.stop(self)
+      self ! PoisonPill
   }
 }
 

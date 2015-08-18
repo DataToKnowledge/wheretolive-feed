@@ -16,11 +16,11 @@ import it.dtk.concurrent.JavaFutureConversions._
  * Created by fabiofumarola on 09/08/15.
  */
 class FeedProducerKafka(val topic: String,
-  val clientId: String,
-  brokersList: String,
-  batchSize: Int = 1,
-  retries: Int = 3,
-  ack: Int = -1) {
+                        val clientId: String,
+                        brokersList: String,
+                        batchSize: Int = 1,
+                        retries: Int = 3,
+                        ack: Int = -1) {
   implicit val formats = Serialization.formats(NoTypeHints)
 
   private val props = new Properties()
@@ -44,5 +44,7 @@ class FeedProducerKafka(val topic: String,
     val message = new ProducerRecord[Array[Byte], Array[Byte]](topic, feed.uri.getBytes(), write(feed).getBytes)
     producer.send(message).get()
   }
+
+  def close() = producer.close()
 }
 

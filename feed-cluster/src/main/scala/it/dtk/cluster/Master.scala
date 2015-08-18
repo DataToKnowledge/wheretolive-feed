@@ -26,7 +26,6 @@ class Master extends PersistentActor {
   val config = context.system.settings.config
   implicit val executor = context.dispatcher
 
-
   //register the actor that should be available for the client
   ClusterReceptionistExtension(context.system).registerService(self)
 
@@ -83,10 +82,11 @@ class Master extends PersistentActor {
 
     case FeedJobResult(source) =>
       state += source.id -> source
+      log.info("rescheduling the job for {} in {}", source, source.fScheduler.time)
+      context.system.scheduler.scheduleOnce(source.fScheduler.time, self, Start(source))
 
     case "ping" =>
       sender() ! "pong"
-
 
   }
 
@@ -112,13 +112,13 @@ class Master extends PersistentActor {
 
 object MasterMain extends App {
 
-//  if (args.isEmpty)
-//    throw new Error("specify the port number")
-//
-//  val port = args(0)
-//
-//  val config = ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port")
-//    .withFallback(ConfigFactory.load("master.conf"))
+  //  if (args.isEmpty)
+  //    throw new Error("specify the port number")
+  //
+  //  val port = args(0)
+  //
+  //  val config = ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port")
+  //    .withFallback(ConfigFactory.load("master.conf"))
 
   val config = ConfigFactory.load("master.conf")
   val system = ActorSystem("ClusterSystem", config)
