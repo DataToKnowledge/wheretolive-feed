@@ -15,7 +15,7 @@ lazy val root = (project in file("."))
     run := {
       (run in Compile).evaluated
     }
-  ) aggregate(api, kafka, model, worker)
+  ) aggregate(api, kafka, model, worker, cluster)
 
 lazy val api = (project in file("./feed-api"))
   .settings(commons: _*)
@@ -25,6 +25,11 @@ lazy val api = (project in file("./feed-api"))
 lazy val worker = (project in file("./feed-worker"))
   .settings(commons: _*)
   .settings(name := "feed-worker")
+  .dependsOn(kafka, model)
+
+lazy val cluster = (project in file("./feed-cluster"))
+  .settings(commons: _*)
+  .settings(name := "feed-cluster")
   .dependsOn(kafka, model)
 
 lazy val kafka = (project in file("./feed-kafka"))
