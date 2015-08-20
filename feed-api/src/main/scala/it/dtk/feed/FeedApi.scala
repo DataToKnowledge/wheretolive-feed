@@ -16,12 +16,12 @@ import spray.routing.HttpService
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
+import it.dtk.cluster.FrontendMasterProtocol._
 
 /**
  * Created by fabiofumarola on 10/08/15.
  */
 trait FeedApi extends HttpService with Json4sJacksonSupport {
-  import manager.FeedsManager._
 
   val routes = pathPrefix("api" / "feed") {
     path("add") {
@@ -47,24 +47,23 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
     }
   }
 
-  def addFeed(feed: FeedSource): Future[String]
+  def addFeed(feed: FeedSource): Future[Result]
 
-  def addFeeds(feeds: List[FeedSource]): Future[List[String]]
+  def addFeeds(feeds: List[FeedSource]): Future[List[Result]]
 
-  def listFeeds(): Future[FeedsList]
+  def listFeeds(): Future[ListFeeds]
 
-  def delFeed(id: String): Future[String]
+  def delFeed(id: String): Future[Result]
 
   implicit val executionContext: ExecutionContext
 }
 
 object FeedService {
-  def props(feedsManagerActor: ActorSelection) = Props(new FeedService(feedsManagerActor))
+  def props(feedsManagerActor: ActorRef) = Props(new FeedService(feedsManagerActor))
 }
 
-class FeedService(val feedsManagerActor: ActorSelection) extends Actor with FeedApi {
+class FeedService(val feedsManagerActor: ActorRef) extends Actor with FeedApi {
 
-  import manager.FeedsManager._
   //implicit def executionContext = actorRefFactory.dispatcher
   override implicit val executionContext: ExecutionContext = actorRefFactory.dispatcher
   implicit val timeout = Timeout(5 seconds)
@@ -74,26 +73,26 @@ class FeedService(val feedsManagerActor: ActorSelection) extends Actor with Feed
 
   override def receive: Receive = runRoute(routes)
 
-  override def listFeeds(): Future[FeedsList] =
-    (feedsManagerActor ? FeedsList()).mapTo[FeedsList]
+  override def listFeeds(): Future[ListFeeds] =
+    (feedsManagerActor ? ListFeeds()).mapTo[ListFeeds]
 
-  override def addFeed(source: FeedSource): Future[String] = {
+  override def addFeed(source: FeedSource): Future[Result] = {
     try {
       val url = new URL(source.url)
       val feedInfo = FeedInfo(url.getHost, source.url, System.currentTimeMillis())
-      (feedsManagerActor ? Add(feedInfo)).mapTo[String]
+      (feedsManagerActor ? AddFeed(feedInfo)).mapTo[Result]
     } catch {
-      case ex: Throwable => Future.failed[String](ex)
+      case ex: Throwable => Future.failed[Result](ex)
     }
   }
 
-  override def addFeeds(list: List[FeedSource]): Future[List[String]] = {
+  override def addFeeds(list: List[FeedSource]): Future[List[Result]] = {
     val result = list.map(addFeed(_))
     Future.sequence(result)
   }
 
-  override def delFeed(id: String): Future[String] =
-    (feedsManagerActor ? Delete(id)).mapTo[String]
+  override def delFeed(id: String): Future[Result] =
+    (feedsManagerActor ? DeleteFeed(id)).mapTo[Result]
 
   override implicit def actorRefFactory: ActorRefFactory = context
 
