@@ -1,6 +1,7 @@
 package it.dtk.feed
 
 import org.joda.time.DateTime
+
 import scala.concurrent.duration.{ FiniteDuration, _ }
 
 /**
@@ -9,23 +10,23 @@ import scala.concurrent.duration.{ FiniteDuration, _ }
 object Model {
 
   case class FeedScheduler(time: FiniteDuration = 10 minutes,
-    delta: FiniteDuration = 2 minutes)
+                           delta: FiniteDuration = 2 minutes)
 
   case class FeedSource(url: String)
 
   case class FeedInfo(id: String,
-    url: String,
-    added: Long,
-    lastUrls: Set[String] = Set.empty,
-    countUrl: Long = 0,
-    fScheduler: FeedScheduler = FeedScheduler())
+                      url: String,
+                      added: Long,
+                      last100Urls: List[String] = List.empty,
+                      countUrl: Long = 0,
+                      fScheduler: FeedScheduler = FeedScheduler())
 
   case class Feed(title: String,
-    description: String,
-    categories: List[String],
-    imageUrl: String,
-    date: DateTime,
-    uri: String)
+                  description: String,
+                  categories: List[String],
+                  imageUrl: String,
+                  date: DateTime,
+                  uri: String)
 
   case class ProcessedFeed(
     feed: Feed,

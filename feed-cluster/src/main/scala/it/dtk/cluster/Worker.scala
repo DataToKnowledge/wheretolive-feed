@@ -73,11 +73,13 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
     case FeedJob(source) =>
       log.info("start worker for feed {} with url {}", source.id, source.url)
 
+      val lastUrls = source.last100Urls.toSet
+
       try {
         val reader = new SyndFeedInput()
         val rawFeeds = reader.build(new XmlReader(new URL(source.url)))
         val filtered = rawFeeds.getEntries.map(FeedParser(_))
-          .filterNot(f => source.lastUrls.contains(f.uri))
+          .filterNot(f => lastUrls.contains(f.uri))
 
         filtered.foreach(f => log.debug(f.toString))
 
@@ -87,13 +89,11 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
         val nextScheduler = FeedSchedulerUtil.when(source.fScheduler, filteredUrl.size)
         log.info("extracted {} urls for feed {}", filteredUrl.size, source.url)
 
-        val nextIterationUrls = if (filteredUrl.isEmpty)
-          source.lastUrls
-        else filteredUrl
+        val nextIterationUrls = (filteredUrl.toList ++ source.last100Urls).take(100)
 
         sender() ! FeedJobResult(
           source.copy(
-            lastUrls = nextIterationUrls,
+            last100Urls = nextIterationUrls,
             countUrl = source.countUrl + filteredUrl.size,
             fScheduler = nextScheduler))
       }
@@ -105,6 +105,7 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
       }
       self ! PoisonPill
   }
+
 }
 
 object WorkerMain extends App {

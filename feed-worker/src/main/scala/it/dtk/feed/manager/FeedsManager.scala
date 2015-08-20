@@ -90,7 +90,7 @@ class FeedsManager extends PersistentActor {
       //update feed info
       state = state.copy(feeds = state.feeds + (feed.id -> feed))
       saveSnapshot(state)
-      log.info("got {} url from {} next analysis in {} minutes", feed.lastUrls.size, feed.id, feed.fScheduler.time toMinutes)
+      log.info("got {} url from {} next analysis in {} minutes", feed.last100Urls.size, feed.id, feed.fScheduler.time toMinutes)
       context.system.scheduler.scheduleOnce(feed.fScheduler.time, self, Next(feed.id))
 
     case Next(id) =>
