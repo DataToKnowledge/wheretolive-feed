@@ -36,19 +36,22 @@ class FeedWorker(val feed: FeedInfo) extends Actor {
     case start =>
       log.info("start worker for feed {} with url {}", feed.id, feed.url)
 
+      val lastUrls = Set(feed.last100Urls)
+
       try {
         val feedInput = new SyndFeedInput()
         val feedData = feedInput.build(new XmlReader(new URL(feed.url)))
         val filteredFeeds = feedData.getEntries.map(FeedParser(_))
-          .filter(f => !feed.lastUrls.contains(f.uri))
+          .filter(f => !lastUrls.contains(f.uri))
         //send to kafka
         filteredFeeds.foreach(producer.sendSync(_))
 
         val filteredUrls = filteredFeeds.map(_.uri).toSet
         val nextScheduler = FeedSchedulerUtil.when(feed.fScheduler, filteredUrls.size)
 
+        //take only the new urls + the last 100 urls
         context.parent ! Result(feed.copy(
-          lastUrls = filteredUrls,
+          last100Urls = (filteredUrls.toList ++ feed.last100Urls).take(100),
           countUrl = feed.countUrl + filteredUrls.size,
           fScheduler = nextScheduler))
 
@@ -60,4 +63,6 @@ class FeedWorker(val feed: FeedInfo) extends Actor {
       }
       context.stop(self)
   }
+
+
 }
