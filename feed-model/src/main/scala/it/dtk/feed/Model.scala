@@ -14,8 +14,7 @@ object Model {
 
   case class FeedSource(url: String)
 
-  case class FeedInfo(id: String,
-                      url: String,
+  case class FeedInfo(url: String,
                       added: Long,
                       last100Urls: List[String] = List.empty,
                       countUrl: Long = 0,

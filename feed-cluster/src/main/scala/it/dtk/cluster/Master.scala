@@ -48,8 +48,8 @@ class Master extends PersistentActor {
   override def receiveCommand: Receive = {
     case AddFeed(source: FeedInfo) =>
       log.info("processing add {}", source)
-      val message = if (!state.contains(source.id)) {
-        state += source.id -> source
+      val message = if (!state.contains(source.url)) {
+        state += source.url -> source
         startWorker(source)
         saveSnapshot(state)
         s"started job for feed: ${source.url}"
@@ -81,7 +81,7 @@ class Master extends PersistentActor {
       backends = backends.filterNot(_ == a)
 
     case FeedJobResult(source) =>
-      state += source.id -> source
+      state += source.url -> source
       log.info("rescheduling the job for {} in {}", source, source.fScheduler.time)
       context.system.scheduler.scheduleOnce(source.fScheduler.time, self, Start(source))
 

@@ -79,7 +79,7 @@ class FeedService(val feedsManagerActor: ActorRef) extends Actor with FeedApi {
   override def addFeed(source: FeedSource): Future[Result] = {
     try {
       val url = new URL(source.url)
-      val feedInfo = FeedInfo(url.getHost, source.url, System.currentTimeMillis())
+      val feedInfo = FeedInfo(source.url, System.currentTimeMillis())
       (feedsManagerActor ? AddFeed(feedInfo)).mapTo[Result]
     } catch {
       case ex: Throwable => Future.failed[Result](ex)

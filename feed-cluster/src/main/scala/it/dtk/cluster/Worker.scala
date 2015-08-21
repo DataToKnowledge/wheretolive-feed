@@ -71,7 +71,7 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
   override def receive: Receive = {
 
     case FeedJob(source) =>
-      log.info("start worker for feed {} with url {}", source.id, source.url)
+      log.info("start worker for feed {}", source.url)
 
       val lastUrls = source.last100Urls.toSet
 
@@ -99,7 +99,7 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
       }
       catch {
         case ex: Throwable =>
-          log.error(ex, "error processing feed {}", source.id)
+          log.error(ex, "error processing feed {}", source.url)
           val nextScheduler = FeedSchedulerUtil.gotException(source.fScheduler)
           sender() ! FeedJobResult(source.copy(fScheduler = nextScheduler))
       }

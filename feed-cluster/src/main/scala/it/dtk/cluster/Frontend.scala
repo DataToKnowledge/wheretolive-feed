@@ -58,7 +58,6 @@ object FrontendTestMain extends App {
   implicit val exec = system.dispatcher
 
   val feed = FeedInfo(
-    id = url.getAuthority,
     url = url.toString,
     added = System.currentTimeMillis()
   )
