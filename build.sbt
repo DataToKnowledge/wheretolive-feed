@@ -40,3 +40,6 @@ lazy val nlp = (project in file("./feed-nlp"))
   .settings(commons: _*)
   .settings(name := "feed-nlp")
   .dependsOn(model)
+
+//libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-api:1.7.7")) }
+//libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-log4j12:1.6.1")) }
