@@ -14,43 +14,31 @@ resolvers ++= Seq(
   "spray repo" at "http://repo.spray.io"
 )
 
-libraryDependencies ++= {
+val akkaVersion = "2.3.12"
+val sprayV = "1.3.3"
 
-  val akkaV = "2.3.12"
-  val sprayV = "1.3.3"
+libraryDependencies ++= Seq(
+  "io.spray" %% "spray-can" % sprayV,
+  "io.spray" %% "spray-routing" % sprayV,
+  "org.json4s" %% "json4s-jackson" % "3.2.11",
+  "com.gettyimages" %% "spray-swagger" % "0.5.1",
+  "net.ceedubs" %% "ficus" % "1.1.2",
+  "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+  "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
+  "com.typesafe.akka" %% "akka-remote" % akkaVersion,
+  "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
+  "com.typesafe.akka" %% "akka-contrib" % akkaVersion,
+  "io.spray" %% "spray-testkit" % sprayV % "test",
+  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
+  "org.scalatest" %% "scalatest" % "2.2.5" % "test",
+  "org.scalactic" %% "scalactic" % "2.2.5",
+  "org.scalacheck" %% "scalacheck" % "1.12.3" % "test"
+)
 
-  val spray = Seq(
-    "io.spray" %% "spray-can" % sprayV,
-    "io.spray" %% "spray-routing" % sprayV,
-    "org.json4s" %% "json4s-jackson" % "3.2.11"
-  )
-
-  val commons = Seq(
-    "net.ceedubs" %% "ficus" % "1.1.2"
-  )
-
-  val akka = Seq(
-    "com.typesafe.akka" %% "akka-actor" % akkaV,
-    "com.typesafe.akka" %% "akka-slf4j" % akkaV,
-    "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.12",
-    "org.iq80.leveldb" % "leveldb" % "0.7",
-    "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
-    "com.typesafe.akka" %% "akka-contrib" % akkaV,
-    "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
-    "com.typesafe.scala-logging" %% "scala-logging-api" % "2.1.2",
-    "ch.qos.logback" % "logback-classic" % "1.1.3"
-  )
-
-  val test = Seq(
-    "io.spray" %% "spray-testkit" % sprayV % "test",
-    "com.typesafe.akka" %% "akka-testkit" % akkaV % "test",
-    "org.scalatest" %% "scalatest" % "2.2.5" % "test",
-    "org.scalactic" %% "scalactic" % "2.2.5",
-    "org.scalacheck" %% "scalacheck" % "1.12.3" % "test"
-  )
-
-  spray ++ akka ++ test ++ commons
-}
+libraryDependencies ++= Seq(
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+   "org.slf4j" % "slf4j-api" % "1.7.12"
+)
 
 Revolver.settings
 fork in Test := true

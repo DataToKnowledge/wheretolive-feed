@@ -11,6 +11,11 @@ libraryDependencies ++= Seq(
   "com.github.nscala-time" %% "nscala-time" % "2.0.0"
 )
 
+libraryDependencies ++= Seq(
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+    "org.slf4j" % "slf4j-api" % "1.7.12"
+)
+
 Revolver.settings
 
 defaultScalariformSettings

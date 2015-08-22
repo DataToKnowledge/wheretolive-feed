@@ -15,17 +15,12 @@ lazy val root = (project in file("."))
     run := {
       (run in Compile).evaluated
     }
-  ) aggregate(api, kafka, model, worker, cluster)
+  ) aggregate(api, kafka, model, cluster)
 
 lazy val api = (project in file("./feed-api"))
   .settings(commons: _*)
   .settings(name := "feed-api")
-  .dependsOn(kafka, model, worker)
-
-lazy val worker = (project in file("./feed-worker"))
-  .settings(commons: _*)
-  .settings(name := "feed-worker")
-  .dependsOn(kafka, model)
+  .dependsOn(kafka, model, cluster)
 
 lazy val cluster = (project in file("./feed-cluster"))
   .settings(commons: _*)
@@ -45,3 +40,6 @@ lazy val nlp = (project in file("./feed-nlp"))
   .settings(commons: _*)
   .settings(name := "feed-nlp")
   .dependsOn(model)
+
+//libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-api:1.7.7")) }
+//libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-log4j12:1.6.1")) }

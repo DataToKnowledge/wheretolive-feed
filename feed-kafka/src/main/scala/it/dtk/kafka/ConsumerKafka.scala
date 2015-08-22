@@ -3,7 +3,6 @@ package it.dtk.kafka
 import akka.actor.{ ActorRef, ActorSystem }
 import akka.util.Timeout
 import com.sclasen.akka.kafka.{ AkkaConsumer, CommitConfig, AkkaConsumerProps }
-import com.typesafe.scalalogging.slf4j.LazyLogging
 import kafka.serializer.StringDecoder
 import scala.concurrent.duration._
 import it.dtk.concurrent.JavaFutureConversions._
@@ -16,7 +15,7 @@ class ConsumerKafka(system: ActorSystem,
   zkConnect: String,
   topic: String,
   group: String,
-  receiver: ActorRef) extends LazyLogging {
+  receiver: ActorRef) {
 
   val commitConfig = CommitConfig(
     commitInterval = Some(10 seconds),

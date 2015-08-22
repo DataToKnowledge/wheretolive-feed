@@ -1,35 +1,31 @@
 package it.dtk.feed
 
-import akka.actor.{ Props, ActorRef, ActorSystem }
+import akka.actor.{ActorSystem, Props}
 import akka.event.Logging
-import com.typesafe.config.ConfigFactory
-import it.dtk.feed.Model.FeedSource
-import net.ceedubs.ficus.Ficus._
 import akka.io.IO
+import com.typesafe.config.ConfigFactory
+import it.dtk.cluster.Frontend
+import net.ceedubs.ficus.Ficus._
 import spray.can.Http
-import akka.pattern._
-import scala.concurrent.duration._
-
-import scala.concurrent.Await
 
 /**
  * Created by fabiofumarola on 10/08/15
  */
 object Boot extends App {
 
-  val config = ConfigFactory.load()
-  val name = config.as[String]("projectId")
+  val config = ConfigFactory.load("frontend.conf")
+  val name = config.as[String]("app.project-id")
 
-  val system = ActorSystem(name, config)
+  implicit val system = ActorSystem("ApiSystem", config)
   val logApp = Logging(system.eventStream, this.getClass.getCanonicalName)
 
-  val feedsManagerActor = system.actorSelection(config.as[String]("feed-manager.path"))
+  val frontendClusterActor = system.actorOf(Props(classOf[Frontend]), name = "frontend")
 
-  val apiConfig = ConfigFactory.load("api.conf")
-  val interface = apiConfig.as[String]("api.host")
-  val port = apiConfig.as[Int]("api.port")
-  implicit val apiSystem = ActorSystem("feed-api", apiConfig)
-  val service = apiSystem.actorOf(FeedService.props(feedsManagerActor))
+  //val apiConfig = ConfigFactory.load("api.conf")
+  val interface = config.as[String]("app.api.host")
+  val port = config.as[Int]("app.api.port")
+  //implicit val apiSystem = ActorSystem("feed-api", apiConfig)
+  val service = system.actorOf(FeedService.props(frontendClusterActor))
 
   IO(Http) ! Http.Bind(service, interface, port)
   logApp.info("started http api service with bind {} on port {}", interface, port)
