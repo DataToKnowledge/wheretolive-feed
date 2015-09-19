@@ -43,3 +43,14 @@ libraryDependencies ++= Seq(
 Revolver.settings
 fork in Test := true
 fork := true
+
+defaultScalariformSettings
+
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+
+packageName in Docker := "dtk/" +  packageName.value
+maintainer in Docker := "info@datatotknowledge.it"
+dockerBaseImage := "java:8-jre"
+dockerExposedPorts := Seq(5000)
+dockerExposedVolumes := Seq("/opt/docker/logs")

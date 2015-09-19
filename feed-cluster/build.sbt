@@ -2,7 +2,7 @@ name := "feed-cluster"
 
 organization := "it.datatoknowledge"
 
-version := "0.0.1"
+version := "0.1"
 
 scalaVersion := "2.11.7"
 
@@ -35,3 +35,12 @@ Revolver.settings
 defaultScalariformSettings
 fork in Test := true
 fork in run := true
+
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+
+packageName in Docker := "dtk/" +  packageName.value
+maintainer in Docker := "info@datatotknowledge.it"
+dockerBaseImage := "java:8-jre"
+dockerExposedPorts := Seq(5000)
+dockerExposedVolumes := Seq("/opt/docker/logs")
