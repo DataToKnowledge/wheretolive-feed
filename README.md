@@ -34,7 +34,7 @@ $ docker run --rm -it dtk/feed-cluster:0.1 master <network_name>
 ```
 
 **2. Start a Worker**
-We can run more worker on differnt machines.
+We can run more worker on different machines.
 
 ```bash
 $ docker run --rm -it --name worker1 \
@@ -49,4 +49,14 @@ Example:
 $ docker run --rm -it --name worker1 \
     --link local_kafka_1:kafkahost --link local_zookeeper_1:zkhost \
     dtk/feed-cluster:0.1 worker eth0 172.17.0.20 5000
+```
+
+we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"`
+
+**3. Start an instance of the Api**
+
+```bash
+
+docker run --rm -it -name api1 \
+    dtk/feed-api:0.1 <ip_master> <port>
 ```
