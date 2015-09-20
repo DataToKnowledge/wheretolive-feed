@@ -11,11 +11,40 @@ It is a project to deploy:
 **1. Start the local zookeeper and kafka with docker**
 ```bash
 
+```
 
+**2. Run with Sbt ~reStart**
+
+For some subfolder in the main folder it is possible to start a microservice.
+
+##### Start the Master
+
+```bash
+
+$ sbt
+$ project cluster
+$ ~reStart master eth0
 
 ```
 
-**2. **
+##### Start a Worker
+
+```bash
+
+$ sbt 
+$ project api
+$ ~restart worker eth0 <ip_master> <port>
+
+```
+
+##### Start the api
+
+```bash
+
+$ sbt
+$ project cluster
+$ ~reStart 192.168.1.4 5000
+```
 
 
 ## Docker Test
@@ -57,6 +86,7 @@ we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"
 
 ```bash
 
-docker run --rm -it -name api1 \
+$ docker run --rm -it -name api1 \
     dtk/feed-api:0.1 <ip_master> <port>
 ```
+
