@@ -42,7 +42,7 @@ fork in run := true
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
-packageName in Docker := "dtk/" +  packageName.value
+packageName in Docker := "data2knowledge/" +  packageName.value
 maintainer in Docker := "info@datatotknowledge.it"
 dockerBaseImage := "java:8-jre"
 dockerExposedPorts := Seq(5000)

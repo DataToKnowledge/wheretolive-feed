@@ -8,7 +8,7 @@ It is a project to deploy:
 
 ## Local Development
 
-**1. Start the local zookeeper and kafka with docker**
+**1. Start a local zookeeper and kafka with docker**
 ```bash
 
 ```
@@ -52,13 +52,13 @@ $ ~reStart 192.168.1.4 5000
 **1. Select the Network Interface**
 
 ```bash
-$ docker run --rm -it dtk/feed-cluster:0.1 network
-``
+$ docker run --rm -it data2knowledge/feed-cluster:0.2 network
+```
 
 **1. Start the Master**
 
 ```bash
-$ docker run --rm -it dtk/feed-cluster:0.1 master <network_name>
+$ docker run --rm -it dtk/feed-cluster:0.2 master <network_name>
 
 ```
 
@@ -68,7 +68,7 @@ We can run more worker on different machines.
 ```bash
 $ docker run --rm -it --name worker1 \
     --link local_kafka_1:kafkahost --link local_zookeeper_1:zkhost \
-    dtk/feed-cluster:0.1 worker <network_name> <master_ip> <master_port>
+    data2knowledge/feed-cluster:0.2 worker <network_name> <master_ip> <master_port>
 ```
 please consider to give the right name of the zookeeper and kafka.
 
@@ -77,7 +77,7 @@ Example:
 ```bash
 $ docker run --rm -it --name worker1 \
     --link local_kafka_1:kafkahost --link local_zookeeper_1:zkhost \
-    dtk/feed-cluster:0.1 worker eth0 172.17.0.20 5000
+    data2knowledge/feed-cluster:0.2 worker eth0 172.17.0.20 5000
 ```
 
 we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"`
@@ -87,6 +87,10 @@ we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"
 ```bash
 
 $ docker run --rm -it -name api1 \
-    dtk/feed-api:0.1 <ip_master> <port>
+    data2knowledge/feed-api:0.2 <ip_master> <port>
 ```
 
+## Deploy to docker hub
+
+1. login with your credential command line
+2. in sbt type the command `docker:publish`
