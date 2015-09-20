@@ -26,6 +26,9 @@ class Master extends PersistentActor {
   val config = context.system.settings.config
   implicit val executor = context.dispatcher
 
+  //send a snaphot every 6 day this is to avoid losing messages into kafka
+  context.system.scheduler.schedule(1 minute, 6 days, self, Snapshot)
+
   //register the actor that should be available for the client
   ClusterReceptionistExtension(context.system).registerService(self)
 
@@ -46,6 +49,7 @@ class Master extends PersistentActor {
   }
 
   override def receiveCommand: Receive = {
+
     case AddFeed(source: FeedInfo) =>
       log.info("processing add {}", source)
       val message = if (!state.contains(source.url)) {
@@ -87,6 +91,14 @@ class Master extends PersistentActor {
 
     case "ping" =>
       sender() ! "pong"
+
+    case Snapshot =>
+      saveSnapshot(state)
+      sender() ! Result(s"snapshot of feeds at ${DateTime.now()}")
+
+    case EvaluateFeeds =>
+      state.values.foreach(source => context.system.scheduler.scheduleOnce(1 second, self, Start(source)))
+      sender() ! Result(s"rescheduled ${state.size} feeds")
 
   }
 
