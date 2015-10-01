@@ -12,7 +12,6 @@ object HostIp {
     val interfaces = NetworkInterface.getNetworkInterfaces
     interfaces.flatMap { inet =>
       inet.getInetAddresses.
-        find(_.isSiteLocalAddress).
         map(e => inet.getDisplayName -> e.getHostAddress)
     } toMap
   }
