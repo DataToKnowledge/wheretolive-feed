@@ -1,6 +1,6 @@
 name := "feed-api"
 
-version := "0.2"
+version := "0.2.1"
 
 scalaVersion := "2.11.7"
 
@@ -49,9 +49,10 @@ defaultScalariformSettings
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
-//packageName in Docker := "data2knowledge/" +  packageName.value
+packageName in Docker := "data2knowledge/" +  packageName.value
 maintainer in Docker := "info@datatotknowledge.it"
+version in Docker := version.toString
 dockerBaseImage := "java:8-jre"
-dockerExposedPorts := Seq(5000)
+dockerExposedPorts := Seq(9000)
 dockerExposedVolumes := Seq("/opt/docker/logs")
 dockerRepository := Option("data2knowledge")

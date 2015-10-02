@@ -11,14 +11,16 @@ It is a project to deploy:
 **1. Select the Network Interface**
 
 ```bash
-$ docker run --rm -it data2knowledge/feed-cluster:0.2 network
+$ docker run --rm -it data2knowledge/feed-cluster:0.2.1 network
 ```
 
 **2. Start the Master**
 
 ```bash
-$ docker run --rm -it --name feed-master data2knowledge/feed-cluster:0.2 master ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
-    -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
+
+$ docker run -d -it --name feed-master data2knowledge/feed-cluster:0.2.1 master ethwe \
+  -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
+  -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 
 ```
 
@@ -26,19 +28,20 @@ $ docker run --rm -it --name feed-master data2knowledge/feed-cluster:0.2 master 
 We can run more worker on different machines.
 
 ```bash
-$ docker run --rm -it --name worker1 \
-    --link local_kafka_1:kafkahost --link local_zookeeper_1:zkhost \
-    data2knowledge/feed-cluster:0.2 worker <network_name> <master_ip> <master_port>
+
+docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.2.1 worker ethwe <master_ip> <master_port> \
+  -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
+  -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
+```
+
+For example
+```bash
+
+  docker run -d -it --name feed-worker-7 data2knowledge/feed-cluster:0.2.1 worker ethwe 192.160.0.3 5000 \
+    -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
+    -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 ```
 please consider to give the right name of the zookeeper and kafka.
-
-Example:
-
-```bash
-$ docker run --rm -it --name worker1 \
-    --link local_kafka_1:kafkahost --link local_zookeeper_1:zkhost \
-    data2knowledge/feed-cluster:0.2 worker eth0 172.17.0.20 5000
-```
 
 we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"`
 
@@ -46,8 +49,16 @@ we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"
 
 ```bash
 
-$ docker run --rm -it -name api1 \
+$ docker run -d -it --name=feed-api-1 \
     data2knowledge/feed-api:0.2 <ip_master> <port>
+```
+
+Example
+
+```bash
+
+$ docker run -d -it --name=feed-api \
+    data2knowledge/feed-api:0.2 192.160.0.3 5000
 ```
 
 
