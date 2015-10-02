@@ -43,6 +43,7 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
 packageName in Docker := "data2knowledge/" +  packageName.value
+version in Docker := version.toString
 maintainer in Docker := "info@datatotknowledge.it"
 dockerBaseImage := "java:8-jre"
 dockerExposedPorts := Seq(5000)
