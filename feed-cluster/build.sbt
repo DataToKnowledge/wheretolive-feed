@@ -42,9 +42,9 @@ fork in run := true
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
-packageName in Docker := "data2knowledge/" +  packageName.value
-version in Docker := version.toString
+version in Docker := version.value
 maintainer in Docker := "info@datatotknowledge.it"
 dockerBaseImage := "java:8-jre"
 dockerExposedPorts := Seq(5000)
 dockerExposedVolumes := Seq("/opt/docker/logs", "/opt/docker/target")
+dockerRepository := Option("data2knowledge")
