@@ -16,14 +16,5 @@ object HostIp {
     } toMap
   }
 
-  def load(name: String): Option[String] = {
-    val interfaces = NetworkInterface.getNetworkInterfaces
-    val interface = interfaces.find(_.getName == name.toString)
-
-    interface.flatMap { inet =>
-      inet.getInetAddresses.find(_.isSiteLocalAddress) map (_.getHostAddress)
-    }
-  }
-
-
+  def load(name: String): Option[String] = findAll().get(name)
 }
