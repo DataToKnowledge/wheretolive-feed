@@ -3,8 +3,8 @@ package it.dtk.feed
 import akka.actor.{ ActorSystem, Props }
 import akka.event.Logging
 import akka.io.IO
-import com.typesafe.config.{ConfigResolveOptions, ConfigParseOptions, ConfigFactory}
-import it.dtk.cluster.Frontend
+import com.typesafe.config.{ ConfigResolveOptions, ConfigParseOptions, ConfigFactory }
+import it.dtk.cluster.{ HostIp, Frontend }
 import net.ceedubs.ficus.Ficus._
 import spray.can.Http
 
@@ -41,7 +41,8 @@ object Boot extends App {
   val frontendClusterActor = system.actorOf(Props(classOf[Frontend]), name = "frontend")
 
   //val apiConfig = ConfigFactory.load("api.conf")
-  val interface = config.as[String]("app.api.host")
+  //  val interface = config.as[String]("app.api.host")
+  val interface = HostIp.load("ethwe").getOrElse(config.as[String]("app.api.host"))
   val port = config.as[Int]("app.api.port")
   //implicit val apiSystem = ActorSystem("feed-api", apiConfig)
   val service = system.actorOf(FeedService.props(frontendClusterActor))
