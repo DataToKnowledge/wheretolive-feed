@@ -49,10 +49,10 @@ defaultScalariformSettings
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
-packageName in Docker := "data2knowledge/" +  packageName.value
+//packageName in Docker := "data2knowledge/" +  packageName.value
 maintainer in Docker := "info@datatotknowledge.it"
 version in Docker := version.toString
 dockerBaseImage := "java:8-jre"
 dockerExposedPorts := Seq(9000)
 dockerExposedVolumes := Seq("/opt/docker/logs")
-//dockerRepository := Option("data2knowledge")
+dockerRepository := Option("data2knowledge")
