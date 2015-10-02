@@ -43,39 +43,46 @@ class Frontend extends Actor {
     case "ping" =>
       (clusterProxy ? ClusterClient.Send(masterActorName, "ping", false)).mapTo[String] pipeTo sender()
 
+    case Snapshot =>
+      (clusterProxy ? ClusterClient.Send(masterActorName, Snapshot, false)).mapTo[Result] pipeTo sender()
+
+    case EvaluateFeeds =>
+      (clusterProxy ? ClusterClient.Send(masterActorName, EvaluateFeeds, false)).mapTo[Result] pipeTo sender()
+
+
   }
 }
 
-object FrontendTestMain extends App {
-
-  val config = ConfigFactory.load("frontend.conf")
-  val system = ActorSystem("FrontendSystem", config)
-  val frontend = system.actorOf(Props(classOf[Frontend]), name = "frontend")
-
-  val url = new URL("http://www.baritoday.it/rss")
-
-  implicit val timeout = akka.util.Timeout(5 seconds)
-  implicit val exec = system.dispatcher
-
-  val feed = FeedInfo(
-    url = url.toString,
-    added = System.currentTimeMillis()
-  )
-
-  val r = (frontend ? AddFeed(feed)).mapTo[Result]
-
-  r.onComplete {
-    case Success(res) => println(res)
-    case Failure(ex)  => ex.printStackTrace()
-  }
-
-  system.scheduler.schedule(1 second, 20 seconds){
-    val l = (frontend ? ListFeeds()).mapTo[ListFeeds]
-
-    l.onComplete {
-      case Success(res) => println(res)
-      case Failure(ex)  => ex.printStackTrace()
-    }
-  }
-
-}
+//object FrontendTestMain extends App {
+//
+//  val config = ConfigFactory.load("frontend.conf")
+//  val system = ActorSystem("FrontendSystem", config)
+//  val frontend = system.actorOf(Props(classOf[Frontend]), name = "frontend")
+//
+//  val url = new URL("http://www.baritoday.it/rss")
+//
+//  implicit val timeout = akka.util.Timeout(5 seconds)
+//  implicit val exec = system.dispatcher
+//
+//  val feed = FeedInfo(
+//    url = url.toString,
+//    added = System.currentTimeMillis()
+//  )
+//
+//  val r = (frontend ? AddFeed(feed)).mapTo[Result]
+//
+//  r.onComplete {
+//    case Success(res) => println(res)
+//    case Failure(ex)  => ex.printStackTrace()
+//  }
+//
+//  system.scheduler.schedule(1 second, 20 seconds){
+//    val l = (frontend ? ListFeeds()).mapTo[ListFeeds]
+//
+//    l.onComplete {
+//      case Success(res) => println(res)
+//      case Failure(ex)  => ex.printStackTrace()
+//    }
+//  }
+//
+//}

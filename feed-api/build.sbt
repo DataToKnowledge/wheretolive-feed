@@ -1,6 +1,6 @@
 name := "feed-api"
 
-version := "0.1"
+version := "0.2.1"
 
 scalaVersion := "2.11.7"
 
@@ -43,3 +43,16 @@ libraryDependencies ++= Seq(
 Revolver.settings
 fork in Test := true
 fork := true
+
+defaultScalariformSettings
+
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+
+packageName in Docker := "data2knowledge/" +  packageName.value
+maintainer in Docker := "info@datatotknowledge.it"
+version in Docker := version.toString
+dockerBaseImage := "java:8-jre"
+dockerExposedPorts := Seq(9000)
+dockerExposedVolumes := Seq("/opt/docker/logs")
+//dockerRepository := Option("data2knowledge")

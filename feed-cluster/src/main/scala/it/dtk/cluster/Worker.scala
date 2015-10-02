@@ -108,13 +108,13 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
 
 }
 
-object WorkerMain extends App {
-  val port = if (args.isEmpty) "0" else args(0)
-  val config = ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port").
-    withFallback(ConfigFactory.load("worker.conf"))
-
-  val actorName = config.as[String]("app.master-role")
-  val system = ActorSystem("ClusterSystem", config)
-  val worker = system.actorOf(Props(classOf[Worker]), actorName)
-  println(s"started actor ${worker.path}")
-}
+//object WorkerMain extends App {
+//  val port = if (args.isEmpty) "0" else args(0)
+//  val config = ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port").
+//    withFallback(ConfigFactory.load("worker.conf"))
+//
+//  val actorName = config.as[String]("app.master-role")
+//  val system = ActorSystem("ClusterSystem", config)
+//  val worker = system.actorOf(Props(classOf[Worker]), actorName)
+//  println(s"started actor ${worker.path}")
+//}

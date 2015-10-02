@@ -26,6 +26,9 @@ class Master extends PersistentActor {
   val config = context.system.settings.config
   implicit val executor = context.dispatcher
 
+  //send a snaphot every 6 day this is to avoid losing messages into kafka
+  context.system.scheduler.schedule(1 minute, 6 days, self, Snapshot)
+
   //register the actor that should be available for the client
   ClusterReceptionistExtension(context.system).registerService(self)
 
@@ -36,7 +39,7 @@ class Master extends PersistentActor {
   case class Start(source: FeedInfo)
 
   override def receiveRecover: Receive = {
-    case SnapshotOffer(meta: SnapshotMetadata, snap: Map[String, FeedInfo]) =>
+    case SnapshotOffer(meta, snap: Map[String, FeedInfo]) =>
       log.info("recovered FeedsManager state from {}", new DateTime(meta.timestamp))
       state = snap
 
@@ -46,6 +49,7 @@ class Master extends PersistentActor {
   }
 
   override def receiveCommand: Receive = {
+
     case AddFeed(source: FeedInfo) =>
       log.info("processing add {}", source)
       val message = if (!state.contains(source.url)) {
@@ -88,6 +92,14 @@ class Master extends PersistentActor {
     case "ping" =>
       sender() ! "pong"
 
+    case Snapshot =>
+      saveSnapshot(state)
+      sender() ! Result(s"snapshot of feeds at ${DateTime.now()}")
+
+    case EvaluateFeeds =>
+      state.values.foreach(source => context.system.scheduler.scheduleOnce(1 second, self, Start(source)))
+      sender() ! Result(s"rescheduled ${state.size} feeds")
+
   }
 
   def startWorker(source: FeedInfo): Unit = {
@@ -110,20 +122,20 @@ class Master extends PersistentActor {
   }
 }
 
-object MasterMain extends App {
-
-  //  if (args.isEmpty)
-  //    throw new Error("specify the port number")
-  //
-  //  val port = args(0)
-  //
-  //  val config = ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port")
-  //    .withFallback(ConfigFactory.load("master.conf"))
-
-  val config = ConfigFactory.load("master.conf")
-  val system = ActorSystem("ClusterSystem", config)
-
-  val actorName = config.as[String]("app.master-role")
-  val master = system.actorOf(Master.props(), actorName)
-  println(s"started actor ${master.path.address}")
-}
+//object MasterMain extends App {
+//
+//  //  if (args.isEmpty)
+//  //    throw new Error("specify the port number")
+//  //
+//  //  val port = args(0)
+//  //
+//  //  val config = ConfigFactory.parseString(s"akka.remote.netty.tcp.port=$port")
+//  //    .withFallback(ConfigFactory.load("master.conf"))
+//
+//  val config = ConfigFactory.load("master.conf")
+//  val system = ActorSystem("ClusterSystem", config)
+//
+//  val actorName = config.as[String]("app.master-role")
+//  val master = system.actorOf(Master.props(), actorName)
+//  println(s"started actor ${master.path.address}")
+//}

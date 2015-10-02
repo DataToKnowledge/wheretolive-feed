@@ -16,4 +16,6 @@ object FrontendMasterProtocol {
   case class Result(msg: String)
   case class ListFeeds(data: Map[String, FeedInfo] = Map.empty)
   case class FeedFailed(f: FeedInfo, ex: Throwable)
+  case object Snapshot
+  case object EvaluateFeeds
 }

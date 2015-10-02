@@ -11,10 +11,10 @@ import it.dtk.feed.Model._
 import org.json4s._
 import org.json4s.jackson.Serialization
 import spray.httpx.Json4sJacksonSupport
-import spray.routing.{HttpServiceActor, HttpService}
+import spray.routing.{ HttpServiceActor, HttpService }
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.runtime.universe._
 
 /**
@@ -23,7 +23,7 @@ import scala.reflect.runtime.universe._
 @Api(value = "/feed", description = "Operations about the feeds", position = 0)
 trait FeedApi extends HttpService with Json4sJacksonSupport {
 
-  val routes = addRoute ~ addListRoute ~ listFeedRoute ~ deleteFeed
+  val routes = addRoute ~ addListRoute ~ listFeedRoute ~ deleteFeed ~ snapshotFeeds ~ evaluateFeeds
 
   def pathPrefix = "feed"
 
@@ -62,29 +62,20 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
     }
   }
 
-  //  val routes = pathPrefix("api" / "feed") {
-  //    path("add") {
-  //      post {
-  //        entity(as[FeedSource]) { feed =>
-  //          complete(addFeed(feed))
-  //        }
-  //      }
-  //    } ~ path("adds") {
-  //      post {
-  //        entity(as[List[FeedSource]]) { list =>
-  //          complete(addFeeds(list))
-  //        }
-  //      }
-  //    } ~ path("list") {
-  //      get {
-  //        complete(listFeeds())
-  //      }
-  //    } ~ path("delete" / Segment) { id =>
-  //      get {
-  //        complete(delFeed(id))
-  //      }
-  //    }
-  //  }
+  @ApiOperation(value = "Snapshot the feeds", notes = "", nickname = "snapFeeds", httpMethod = "POST")
+  def snapshotFeeds = post {
+    path(pathPrefix / "snapshot") {
+      complete(snapFeeds())
+    }
+  }
+
+  @ApiOperation(value = "evaluate all the the feeds", notes = "", nickname = "evalFeeds", httpMethod = "POST")
+  def evaluateFeeds = post {
+    path(pathPrefix / "evalfeeds") {
+      complete(evalFeeds())
+    }
+  }
+
 
   def addFeed(feed: FeedSource): Future[Result]
 
@@ -93,6 +84,10 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
   def listFeeds(): Future[ListFeeds]
 
   def delFeed(id: String): Future[Result]
+
+  def snapFeeds(): Future[Result]
+
+  def evalFeeds(): Future[Result]
 
   implicit val executionContext: ExecutionContext
 }
@@ -110,11 +105,12 @@ class FeedService(val feedsManagerActor: ActorRef) extends HttpServiceActor with
   val config = ConfigFactory.load()
 
   override def receive: Receive = runRoute(swaggerService.routes ~ routes ~ get {
-      path(""){pathEndOrSingleSlash {
+    path("") {
+      pathEndOrSingleSlash {
         getFromResource("/swagger-ui/index.html")
       }
-      } ~ getFromResourceDirectory("/swagger-ui")
-    }
+    } ~ getFromResourceDirectory("/swagger-ui")
+  }
   )
 
   override def listFeeds(): Future[ListFeeds] =
@@ -137,6 +133,12 @@ class FeedService(val feedsManagerActor: ActorRef) extends HttpServiceActor with
 
   override def delFeed(id: String): Future[Result] =
     (feedsManagerActor ? DeleteFeed(id)).mapTo[Result]
+
+  override def snapFeeds(): Future[Result] =
+    (feedsManagerActor ? Snapshot).mapTo[Result]
+
+  override def evalFeeds(): Future[Result] =
+    (feedsManagerActor ? EvaluateFeeds).mapTo[Result]
 
   override def actorRefFactory = context
 
