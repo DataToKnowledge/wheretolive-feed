@@ -6,11 +6,58 @@ It is a project to deploy:
 3. feed-kafka: kafka interface
 
 
+## Start in Production
+
+**1. Select the Network Interface**
+
+```bash
+$ docker run --rm -it data2knowledge/feed-cluster:0.2 network
+```
+
+**2. Start the Master**
+
+```bash
+$ docker run --rm -it --name feed-master data2knowledge/feed-cluster:0.2 master ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
+    -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
+
+```
+
+**3. Start a Worker**
+We can run more worker on different machines.
+
+```bash
+$ docker run --rm -it --name worker1 \
+    --link local_kafka_1:kafkahost --link local_zookeeper_1:zkhost \
+    data2knowledge/feed-cluster:0.2 worker <network_name> <master_ip> <master_port>
+```
+please consider to give the right name of the zookeeper and kafka.
+
+Example:
+
+```bash
+$ docker run --rm -it --name worker1 \
+    --link local_kafka_1:kafkahost --link local_zookeeper_1:zkhost \
+    data2knowledge/feed-cluster:0.2 worker eth0 172.17.0.20 5000
+```
+
+we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"`
+
+**3. Start an instance of the Api**
+
+```bash
+
+$ docker run --rm -it -name api1 \
+    data2knowledge/feed-api:0.2 <ip_master> <port>
+```
+
+
+
 ## Local Development
 
 **1. Start a local zookeeper and kafka with docker**
 ```bash
 
+setup a 
 ```
 
 **2. Run with Sbt ~reStart**
@@ -55,14 +102,14 @@ $ ~reStart 192.168.1.4 5000
 $ docker run --rm -it data2knowledge/feed-cluster:0.2 network
 ```
 
-**1. Start the Master**
+**2. Start the Master**
 
 ```bash
 $ docker run --rm -it dtk/feed-cluster:0.2 master <network_name>
 
 ```
 
-**2. Start a Worker**
+**3. Start a Worker**
 We can run more worker on different machines.
 
 ```bash

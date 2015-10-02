@@ -19,6 +19,8 @@ object Boot extends App {
     sys.exit(1)
   }
 
+  args.foreach(println)
+
   args(0) match {
     case "network" =>
       HostIp.findAll().foreach(kv => println(s"${kv._1} -> ${kv._2}"))

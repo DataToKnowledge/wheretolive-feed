@@ -12,19 +12,9 @@ object HostIp {
     val interfaces = NetworkInterface.getNetworkInterfaces
     interfaces.flatMap { inet =>
       inet.getInetAddresses.
-        find(_.isSiteLocalAddress).
         map(e => inet.getDisplayName -> e.getHostAddress)
     } toMap
   }
 
-  def load(name: String): Option[String] = {
-    val interfaces = NetworkInterface.getNetworkInterfaces
-    val interface = interfaces.find(_.getName == name.toString)
-
-    interface.flatMap { inet =>
-      inet.getInetAddresses.find(_.isSiteLocalAddress) map (_.getHostAddress)
-    }
-  }
-
-
+  def load(name: String): Option[String] = findAll().get(name)
 }
