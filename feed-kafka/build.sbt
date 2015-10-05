@@ -12,8 +12,8 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" %% "kafka" % "0.8.2.1",
   "net.ceedubs" %% "ficus" % "1.1.2",
   "com.sclasen" %% "akka-kafka" % "0.1.0",
-  "org.json4s" %% "json4s-jackson" % "3.2.11",
-  "com.rometools" % "rome" % "1.5.1",
+  "org.json4s" %% "json4s-jackson" % "3.3.0",
+  "org.json4s" %% "json4s-ext" % "3.3.0",
   "org.apache.kafka" % "kafka-clients" % "0.8.2.1"
 )
 

@@ -6,7 +6,6 @@ import akka.actor._
 import akka.cluster.{ Member, MemberStatus, Cluster }
 import akka.cluster.ClusterEvent.{ CurrentClusterState, MemberUp }
 import akka.event.Logging
-import com.typesafe.config.ConfigFactory
 import it.dtk.cluster.BackendWorkerProtocol._
 import com.rometools.rome.io.{ SyndFeedInput, XmlReader }
 import it.dtk.feed.Model.FeedInfo
@@ -67,6 +66,7 @@ class Worker extends Actor {
 
 class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
   val log = Logging(context.system.eventStream, this.getClass.getCanonicalName)
+  import it.dtk.feed.logic._
 
   override def receive: Receive = {
 
@@ -76,14 +76,13 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
       val lastUrls = source.last100Urls.toSet
 
       try {
-        val reader = new SyndFeedInput()
-        val rawFeeds = reader.build(new XmlReader(new URL(source.url)))
-        val filtered = rawFeeds.getEntries.map(FeedParser(_))
+        val filtered = FeedUtil.parseFeed(source.url)
           .filterNot(f => lastUrls.contains(f.uri))
 
-        filtered.foreach(f => log.debug(f.toString))
-
-        filtered.foreach(producer.sendSync(_))
+        filtered.foreach { f =>
+          log.debug(f.toString)
+          producer.sendSync(f)
+        }
 
         val filteredUrl = filtered.map(_.uri).toSet
         val nextScheduler = FeedSchedulerUtil.when(source.fScheduler, filteredUrl.size)

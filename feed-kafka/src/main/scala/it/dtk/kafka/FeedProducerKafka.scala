@@ -21,7 +21,7 @@ class FeedProducerKafka(val topic: String,
                         batchSize: Int = 1,
                         retries: Int = 3,
                         ack: Int = -1) {
-  implicit val formats = Serialization.formats(NoTypeHints)
+  implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
 
   private val props = new Properties()
   props.put(BOOTSTRAP_SERVERS_CONFIG, brokersList)
