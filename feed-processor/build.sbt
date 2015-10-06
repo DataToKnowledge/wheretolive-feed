@@ -31,3 +31,15 @@ libraryDependencies ++= Seq(
 Revolver.settings
 
 defaultScalariformSettings
+fork in Test := true
+fork in run := true
+
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+
+version in Docker := version.value
+maintainer in Docker := "info@datatotknowledge.it"
+dockerBaseImage := "java:8-jre"
+dockerExposedPorts := Seq(5000)
+dockerExposedVolumes := Seq("/opt/docker/logs", "/opt/docker/target")
+dockerRepository := Option("data2knowledge")
