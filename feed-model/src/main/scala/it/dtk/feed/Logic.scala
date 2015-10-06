@@ -51,7 +51,7 @@ object FeedUtil {
     }
   }
 
-  def processFeedEntry(feed: Feed, html: String, contentType: String): Unit = {
+  def processFeedEntry(feed: Feed, html: String, contentType: String): ProcessedFeed = {
     val (pageText, lang, authors) = processTika(feed, html, contentType)
 
     Gander.extract(html) match {
@@ -123,7 +123,7 @@ object FeedUtil {
 
 }
 
-object HttpDownloader {
+class HttpDownloader {
   //check for configurations https://www.playframework.com/documentation/2.4.x/ScalaWS
   private val builder = new Builder()
   builder.setFollowRedirect(true)

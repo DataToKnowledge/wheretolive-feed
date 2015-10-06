@@ -1,7 +1,8 @@
-package it.dtk.cluster
+package it.dtk.util
+
+import java.net.NetworkInterface
 
 import scala.collection.JavaConversions._
-import java.net.NetworkInterface
 
 /**
  * Created by fabiofumarola on 16/09/15.

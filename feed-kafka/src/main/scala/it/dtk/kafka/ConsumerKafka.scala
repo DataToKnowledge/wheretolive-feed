@@ -12,10 +12,10 @@ import scala.concurrent.Future
  * Created by fabiofumarola on 09/08/15.
  */
 class ConsumerKafka(system: ActorSystem,
-  zkConnect: String,
-  topic: String,
-  group: String,
-  receiver: ActorRef) {
+                    zkConnect: String,
+                    topic: String,
+                    consumerGroup: String,
+                    receiver: ActorRef) {
 
   val commitConfig = CommitConfig(
     commitInterval = Some(10 seconds),
@@ -26,7 +26,7 @@ class ConsumerKafka(system: ActorSystem,
     system = system,
     zkConnect = zkConnect,
     topic = topic,
-    group = group,
+    group = consumerGroup,
     streams = 4,
     maxInFlightPerStream = 64,
     keyDecoder = new StringDecoder(),

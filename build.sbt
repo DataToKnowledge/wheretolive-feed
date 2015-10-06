@@ -2,7 +2,7 @@ lazy val commons = Seq(
   organization := "it.datatoknowledge",
   version := "0.2.1",
   scalaVersion := "2.11.7",
-  scalacOptions ++= Seq("-target:jvm-1.7", "-feature"),
+  scalacOptions ++= Seq("-target:jvm-1.7"), //, "-feature"
   resolvers ++= Seq(
     "spray repo" at "http://repo.spray.io"
   )
