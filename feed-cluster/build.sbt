@@ -2,7 +2,7 @@ name := "feed-cluster"
 
 organization := "it.datatoknowledge"
 
-version := "0.2.1"
+version := "0.3.0"
 
 scalaVersion := "2.11.7"
 
@@ -19,11 +19,6 @@ libraryDependencies ++= Seq(
   "org.iq80.leveldb" % "leveldb" % "0.7",
   "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
   "net.ceedubs" %% "ficus" % "1.1.2",
-  "org.json4s" %% "json4s-jackson" % "3.2.11",
-  "com.rometools" % "rome" % "1.5.1",
-  "com.typesafe.play" % "play-ws_2.11" % "2.4.2",
-  "com.rubiconproject.oss" % "jchronic" % "0.2.6",
-  "com.github.nscala-time" %% "nscala-time" % "2.0.0",
   "org.fusesource" % "sigar" % "1.6.4",
   "com.github.krasserm" %% "akka-persistence-kafka" % "0.4"
 )

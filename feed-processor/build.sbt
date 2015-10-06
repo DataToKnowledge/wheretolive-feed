@@ -1,4 +1,4 @@
-name := "feed-nlp"
+name := "feed-processor"
 
 organization := "it.datatoknowledge"
 
@@ -9,13 +9,18 @@ scalaVersion := "2.11.7"
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.3.12",
   "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.12",
-  "org.apache.kafka" %% "kafka" % "0.8.2.1",
   "net.ceedubs" %% "ficus" % "1.1.2",
-  "org.json4s" %% "json4s-jackson" % "3.2.11",
-  "com.rometools" % "rome" % "1.5.1",
-  "com.typesafe.play" % "play-ws_2.11" % "2.4.2",
-  "com.rubiconproject.oss" % "jchronic" % "0.2.6",
   "com.github.nscala-time" %% "nscala-time" % "2.0.0"
+)
+
+libraryDependencies ++= Seq(
+  "com.syncthemall" % "boilerpipe" % "1.2.2",
+  "org.apache.tika" % "tika-core" % "1.10",
+  "org.apache.tika" % "tika-parsers" % "1.10",
+  "com.typesafe.play" %% "play-ws" % "2.4.3",
+  "org.json4s" %% "json4s-jackson" % "3.3.0",
+  "org.json4s" %% "json4s-ext" % "3.3.0",
+  "com.intenthq" %% "gander" % "1.2"
 )
 
 libraryDependencies ++= Seq(

@@ -152,3 +152,7 @@ $ docker run --rm -it -name api1 \
 
 1. login with your credential command line
 2. in sbt type the command `docker:publish`
+
+## Tool to monitor kafka
+
+docker run -it -d -p 8888:8888 -e ZOOKEEPERS="zkhost:2181" chatu/trifecta

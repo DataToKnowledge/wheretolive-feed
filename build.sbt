@@ -2,7 +2,7 @@ lazy val commons = Seq(
   organization := "it.datatoknowledge",
   version := "0.2.1",
   scalaVersion := "2.11.7",
-  scalacOptions += "-target:jvm-1.7",
+  scalacOptions ++= Seq("-target:jvm-1.7"), //, "-feature"
   resolvers ++= Seq(
     "spray repo" at "http://repo.spray.io"
   )
@@ -36,10 +36,10 @@ lazy val model = (project in file("./feed-model"))
   .settings(commons: _*)
   .settings(name := "feed-model")
 
-lazy val nlp = (project in file("./feed-nlp"))
+lazy val processor = (project in file("./feed-processor"))
   .settings(commons: _*)
-  .settings(name := "feed-nlp")
-  .dependsOn(model)
+  .settings(name := "feed-processor")
+  .dependsOn(model, kafka)
 
 //libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-api:1.7.7")) }
 //libraryDependencies ~= { _.map(_.exclude("org.slf4j", "slf4j-log4j12:1.6.1")) }
