@@ -20,7 +20,8 @@ val sprayV = "1.3.3"
 libraryDependencies ++= Seq(
   "io.spray" %% "spray-can" % sprayV,
   "io.spray" %% "spray-routing" % sprayV,
-  "org.json4s" %% "json4s-jackson" % "3.2.11",
+  "org.json4s" %% "json4s-jackson" % "3.3.0",
+  "org.json4s" %% "json4s-ext" % "3.3.0",
   "com.gettyimages" %% "spray-swagger" % "0.5.1",
   "net.ceedubs" %% "ficus" % "1.1.2",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
@@ -31,8 +32,7 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-testkit" % sprayV % "test",
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
   "org.scalatest" %% "scalatest" % "2.2.5" % "test",
-  "org.scalactic" %% "scalactic" % "2.2.5",
-  "org.scalacheck" %% "scalacheck" % "1.12.3" % "test"
+  "org.scalactic" %% "scalactic" % "2.2.5"
 )
 
 libraryDependencies ++= Seq(

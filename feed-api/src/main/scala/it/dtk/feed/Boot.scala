@@ -4,7 +4,8 @@ import akka.actor.{ ActorSystem, Props }
 import akka.event.Logging
 import akka.io.IO
 import com.typesafe.config.{ ConfigResolveOptions, ConfigParseOptions, ConfigFactory }
-import it.dtk.cluster.{ HostIp, Frontend }
+import it.dtk.cluster.Frontend
+import it.dtk.util.HostIp
 import net.ceedubs.ficus.Ficus._
 import spray.can.Http
 

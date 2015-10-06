@@ -1,5 +1,6 @@
 package it.dtk.feed
 
+import com.intenthq.gander.opengraph.OpenGraphData
 import org.joda.time.DateTime
 
 import scala.concurrent.duration.{ FiniteDuration, _ }
@@ -28,10 +29,20 @@ object Model {
                   uri: String)
 
   case class ProcessedFeed(
-    feed: Feed,
+    uri: String,
+    processedTitle: String,
+    summary: String,
+    metaDescription: String,
+    categories: List[String],
+    metaKeywords: List[String],
+    imageUrl: String,
+    publishDate: DateTime,
     language: String,
-    html: Option[String],
-    content: String)
+    html: String,
+    cleanedText: String,
+    pageText: String,
+    authors: String,
+    openGraphData: Option[OpenGraphData])
 
   //FIXME add when processing Text
   //  case class NlpFeed(

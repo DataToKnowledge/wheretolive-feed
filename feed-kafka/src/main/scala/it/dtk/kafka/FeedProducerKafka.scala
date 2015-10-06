@@ -21,7 +21,7 @@ class FeedProducerKafka(val topic: String,
                         batchSize: Int = 1,
                         retries: Int = 3,
                         ack: Int = -1) {
-  implicit val formats = Serialization.formats(NoTypeHints)
+  implicit val formats = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
 
   private val props = new Properties()
   props.put(BOOTSTRAP_SERVERS_CONFIG, brokersList)
@@ -40,9 +40,19 @@ class FeedProducerKafka(val topic: String,
     producer.send(message)
   }
 
+  def sendAsync(procFeed: ProcessedFeed): Future[RecordMetadata] = {
+    val message = new ProducerRecord[Array[Byte], Array[Byte]](topic, procFeed.uri.getBytes(), write(procFeed).getBytes)
+    producer.send(message)
+  }
+
   def sendSync(feed: Feed): RecordMetadata = {
     val message = new ProducerRecord[Array[Byte], Array[Byte]](topic, feed.uri.getBytes(), write(feed).getBytes)
     producer.send(message).get()
+  }
+
+  def sendSync(procFeed: ProcessedFeed): RecordMetadata = {
+    val msg = new ProducerRecord[Array[Byte], Array[Byte]](topic, procFeed.uri.getBytes(), write(procFeed).getBytes)
+    producer.send(msg).get()
   }
 
   def close() = producer.close()

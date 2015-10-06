@@ -53,3 +53,5 @@ logs/
 */logs/
 
 /snapshots
+
+.DS_Store

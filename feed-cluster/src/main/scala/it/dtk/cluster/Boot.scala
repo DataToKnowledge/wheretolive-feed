@@ -2,6 +2,7 @@ package it.dtk.cluster
 
 import akka.actor.{ Props, ActorRef, ActorSystem }
 import com.typesafe.config.{ ConfigParseOptions, ConfigResolveOptions, ConfigFactory, Config }
+import it.dtk.util.HostIp
 import net.ceedubs.ficus.Ficus._
 
 /**
@@ -67,7 +68,7 @@ object Starter {
 
     val ethName = args(0)
 
-    val ipAddress = HostIp.load(ethName).getOrElse("127.0.0.1")
+    val ipAddress = HostIp.load(ethName).get
     println(s"detected ip $ipAddress")
 
     val config = ConfigFactory.load(
