@@ -14,7 +14,7 @@ resolvers ++= Seq(
   "spray repo" at "http://repo.spray.io"
 )
 
-val akkaVersion = "2.3.12"
+val akkaVersion = "2.3.14"
 val sprayV = "1.3.3"
 
 libraryDependencies ++= Seq(

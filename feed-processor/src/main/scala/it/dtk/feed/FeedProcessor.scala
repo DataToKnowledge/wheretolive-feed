@@ -1,6 +1,7 @@
 package it.dtk.feed
 
 import akka.actor.{ Actor, ActorLogging, Props }
+import akka.event.Logging
 import akka.routing.{ DefaultResizer, RoundRobinPool }
 import com.sclasen.akka.kafka.StreamFSM
 import it.dtk.feed.Model._
@@ -23,8 +24,9 @@ object FeedProcessor {
     RoundRobinPool(nrWorkers, Some(DefaultResizer(lowerBound, upperBound))).props(props)
 }
 
-class FeedProcessor extends Actor
-    with ActorLogging {
+class FeedProcessor extends Actor {
+
+  val log = Logging(context.system, this)
 
   val config = context.system.settings.config
 

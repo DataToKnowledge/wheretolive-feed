@@ -6,7 +6,7 @@ version := "0.3.0"
 
 scalaVersion := "2.11.7"
 
-val akkaVersion = "2.3.12"
+val akkaVersion = "2.3.14"
 
 resolvers += "krasserm at bintray" at "http://dl.bintray.com/krasserm/maven"
 
