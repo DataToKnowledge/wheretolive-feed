@@ -110,13 +110,13 @@ $ ~reStart 192.168.1.4 5000
 **1. Select the Network Interface**
 
 ```bash
-$ docker run --rm -it data2knowledge/feed-cluster:0.2 network
+$ docker run --rm -it data2knowledge/feed-cluster:0.3.0 network
 ```
 
 **2. Start the Master**
 
 ```bash
-$ docker run --rm -it dtk/feed-cluster:0.2 master <network_name>
+$ docker run --rm -it --name=feed-master data2knowledge/feed-cluster:0.3.0 master <network_name>
 
 ```
 
@@ -155,4 +155,4 @@ $ docker run --rm -it -name api1 \
 
 ## Tool to monitor kafka
 
-docker run -it -d -p 8888:8888 -e ZOOKEEPERS="zkhost:2181" chatu/trifecta
+docker run -it -d -p 8888:8888 -e ZOOKEEPERS="192.168.99.100:2181" chatu/trifecta

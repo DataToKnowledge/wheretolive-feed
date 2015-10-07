@@ -45,18 +45,20 @@ class FeedProcessor extends Actor {
 
     case json: String =>
       val send = sender
-
+      log.debug(s"got message $json")
       parse(json).extractOpt[Feed] match {
-
         case Some(feed) =>
 
+          log.debug(s"parsed feed $feed")
           ws.download(feed.uri) onComplete {
 
             case Success(response) =>
               val contentType = response.header("Content-Type").getOrElse("")
+              log.debug(s"download page ${feed.uri} with status ${response.statusText}")
               val html = response.body
               val processedFeed = FeedUtil.processFeedEntry(feed, html, contentType)
               kafkaProd.sendSync(processedFeed)
+              log.debug(s"send message to kafka for uri ${feed.uri}")
               send ! StreamFSM.Processed
 
             case Failure(ex) =>
