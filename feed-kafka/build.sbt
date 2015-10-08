@@ -7,8 +7,8 @@ version := "0.0.1"
 scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-actor" % "2.3.14",
-  "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.14",
+  "com.typesafe.akka" %% "akka-actor" % "2.3.12",
+  "com.typesafe.akka" %% "akka-persistence-experimental" % "2.3.12",
   "org.apache.kafka" %% "kafka" % "0.8.2.1",
   "net.ceedubs" %% "ficus" % "1.1.2",
   "com.sclasen" %% "akka-kafka" % "0.1.0",

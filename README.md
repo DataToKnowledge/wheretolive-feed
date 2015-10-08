@@ -18,7 +18,7 @@ $ docker run --rm -it data2knowledge/feed-cluster:0.2.1 network
 
 ```bash
 
-$ docker run -d -it --name feed-master data2knowledge/feed-cluster:0.2.1 master ethwe \
+$ docker run -d -it --name feed-master data2knowledge/feed-cluster:0.3.0 master ethwe \
   -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
   -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 
@@ -29,7 +29,7 @@ We can run more worker on different machines.
 
 ```bash
 
-docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.2.1 worker ethwe <master_ip> <master_port> \
+$ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.3.0 worker ethwe <master_ip> <master_port> \
   -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
   -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 ```
@@ -50,7 +50,7 @@ we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"
 ```bash
 
 $ docker run -d -it --name=feed-api-1 \
-    data2knowledge/feed-api:0.2 <ip_master> <port>
+    data2knowledge/feed-api:0.2.1 <ip_master> <port>
 ```
 
 Example
@@ -58,10 +58,16 @@ Example
 ```bash
 
 $ docker run -d -it --name=feed-api \
-    data2knowledge/feed-api:0.2 192.160.0.3 5000
+    data2knowledge/feed-api:0.2.1 192.160.0.3 5000
 ```
 
+**4. Start a processor
 
+```bash
+
+$ docker run -d -it --name=processor-1 data2knowledge/feed-processor:0.0.1 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
+
+```
 
 ## Local Development
 
@@ -156,3 +162,32 @@ $ docker run --rm -it -name api1 \
 ## Tool to monitor kafka
 
 docker run -it -d -p 8888:8888 -e ZOOKEEPERS="192.168.99.100:2181" chatu/trifecta
+
+## Topic managment
+
+### Create a topic
+
+```bash
+./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --create \
+    --replication-factor 2 --partitions 2 --config delete.retention.ms=2419200000 \
+    --topic feed 
+```
+
+or via alter
+
+```bash
+
+./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --alter --topic feed \
+    --config delete.retention.ms=2419200000
+```
+
+### Delete a topic
+
+we can setup the retention to 1 ms
+```bash
+./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --alter --topic snapshot-feed-manager-master --config delete.retention.ms=10
+```
+
+```bash
+./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --delete --topic snapshot-feed-manager-master
+```
