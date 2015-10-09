@@ -78,7 +78,6 @@ object FeedUtil {
             publishDate = pageInfo.publishDate.map(d => new DateTime(d.getTime)).getOrElse(feed.date),
             language = pageInfo.lang.getOrElse(lang),
             cleanedText = pageInfo.cleanedText.getOrElse(""),
-            pageText = pageText,
             authors = authors,
             openGraphData = Some(pageInfo.openGraphData)
           ),
@@ -103,7 +102,6 @@ object FeedUtil {
             publishDate = feed.date,
             language = lang,
             cleanedText = "",
-            pageText = pageText,
             authors = authors,
             openGraphData = None
           ),

@@ -37,7 +37,7 @@ $ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.3.1 worke
 For example
 ```bash
 
-  docker run -d -it --name feed-worker-7 data2knowledge/feed-cluster:0.3.1 worker ethwe 192.160.0.3 5000 \
+  docker run -d -it --name feed-worker-4 data2knowledge/feed-cluster:0.3.1 worker ethwe 192.160.0.3 5000 \
     -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
     -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 ```
@@ -65,7 +65,7 @@ $ docker run -d -it --name=feed-api \
 
 ```bash
 
-$ docker run -d -it --name=processor-1 data2knowledge/feed-processor:0.1.1 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
+$ docker run -d -it --name=processor-2 data2knowledge/feed-processor:0.2.0 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 
 ```
 
@@ -169,8 +169,8 @@ docker run -it -d -p 8888:8888 -e ZOOKEEPERS="192.168.99.100:2181" chatu/trifect
 
 ```bash
 ./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --create \
-    --replication-factor 2 --partitions 2 --config delete.retention.ms=2419200000 \
-    --topic feed 
+     --replication-factor 2 --partitions 3 --config delete.retention.ms=2419200000 \
+     --topic feed
 ```
 
 or via alter
@@ -183,11 +183,14 @@ or via alter
 
 ### Delete a topic
 
-we can setup the retention to 1 ms
+if delete.topic.enable is true then
+```
+ ./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --delete --topic snapshot-feed-manager-master --config delete.topic.enable=true
+```
+
+otherwise, we can setup the retention to 1 ms
+
 ```bash
 ./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --alter --topic snapshot-feed-manager-master --config delete.retention.ms=10
 ```
 
-```bash
-./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --delete --topic snapshot-feed-manager-master
-```
