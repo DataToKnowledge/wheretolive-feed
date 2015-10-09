@@ -11,14 +11,14 @@ It is a project to deploy:
 **1. Select the Network Interface**
 
 ```bash
-$ docker run --rm -it data2knowledge/feed-cluster:0.2.1 network
+$ docker run --rm -it data2knowledge/feed-cluster:0.3.1 network
 ```
 
 **2. Start the Master**
 
 ```bash
 
-$ docker run -d -it --name feed-master data2knowledge/feed-cluster:0.3.0 master ethwe \
+$ docker run -d -it --name feed-master data2knowledge/feed-cluster:0.3.1 master ethwe \
   -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
   -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 
@@ -29,7 +29,7 @@ We can run more worker on different machines.
 
 ```bash
 
-$ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.3.0 worker ethwe <master_ip> <master_port> \
+$ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.3.1 worker ethwe <master_ip> <master_port> \
   -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
   -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 ```
@@ -37,7 +37,7 @@ $ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.3.0 worke
 For example
 ```bash
 
-  docker run -d -it --name feed-worker-7 data2knowledge/feed-cluster:0.2.1 worker ethwe 192.160.0.3 5000 \
+  docker run -d -it --name feed-worker-7 data2knowledge/feed-cluster:0.3.1 worker ethwe 192.160.0.3 5000 \
     -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
     -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 ```
@@ -50,7 +50,7 @@ we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"
 ```bash
 
 $ docker run -d -it --name=feed-api-1 \
-    data2knowledge/feed-api:0.2.1 <ip_master> <port>
+    data2knowledge/feed-api:0.2.2 <ip_master> <port>
 ```
 
 Example
@@ -58,14 +58,14 @@ Example
 ```bash
 
 $ docker run -d -it --name=feed-api \
-    data2knowledge/feed-api:0.2.1 192.160.0.3 5000
+    data2knowledge/feed-api:0.2.2 192.160.0.3 5000
 ```
 
 **4. Start a processor
 
 ```bash
 
-$ docker run -d -it --name=processor-1 data2knowledge/feed-processor:0.0.1 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
+$ docker run -d -it --name=processor-1 data2knowledge/feed-processor:0.1.1 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 
 ```
 
