@@ -38,11 +38,17 @@ object Model {
     imageUrl: String,
     publishDate: DateTime,
     language: String,
-    html: String,
     cleanedText: String,
     pageText: String,
     authors: String,
     openGraphData: Option[OpenGraphData])
+
+  case class PageData(
+    url: String,
+    html: String,
+    outlinks: Map[String, String],
+    title: String,
+    cleanedText: String)
 
   //FIXME add when processing Text
   //  case class NlpFeed(

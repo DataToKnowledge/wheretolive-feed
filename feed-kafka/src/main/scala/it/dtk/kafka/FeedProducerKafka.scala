@@ -45,6 +45,11 @@ class FeedProducerKafka(val topic: String,
     producer.send(message)
   }
 
+  def sendAsync(pageData: PageData): Future[RecordMetadata] = {
+    val message = new ProducerRecord[Array[Byte], Array[Byte]](topic, pageData.url.getBytes(), write(pageData).getBytes)
+    producer.send(message)
+  }
+
   def sendSync(feed: Feed): RecordMetadata = {
     val message = new ProducerRecord[Array[Byte], Array[Byte]](topic, feed.uri.getBytes(), write(feed).getBytes)
     producer.send(message).get()
@@ -53,6 +58,11 @@ class FeedProducerKafka(val topic: String,
   def sendSync(procFeed: ProcessedFeed): RecordMetadata = {
     val msg = new ProducerRecord[Array[Byte], Array[Byte]](topic, procFeed.uri.getBytes(), write(procFeed).getBytes)
     producer.send(msg).get()
+  }
+
+  def sendSync(pageData: PageData): RecordMetadata = {
+    val msg = new ProducerRecord[Array[Byte], Array[Byte]](topic, pageData.url.getBytes(), write(pageData).getBytes)
+    producer.send(msg).get
   }
 
   def close() = producer.close()
