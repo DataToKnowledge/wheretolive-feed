@@ -39,6 +39,7 @@ object Model {
     publishDate: DateTime,
     language: String,
     cleanedText: String,
+    pageText: Option[String] = None,
     authors: String,
     openGraphData: Option[OpenGraphData])
 
