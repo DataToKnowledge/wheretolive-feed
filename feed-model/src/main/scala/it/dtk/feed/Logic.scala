@@ -4,8 +4,7 @@ import java.io.ByteArrayInputStream
 import java.net.URL
 import java.nio.charset.Charset
 
-import com.intenthq.gander.opengraph.OpenGraphData
-import com.intenthq.gander.{ Gander, PageInfo }
+import com.intenthq.gander.Gander
 import com.ning.http.client.AsyncHttpClientConfig.Builder
 import com.rometools.rome.io.{ SyndFeedInput, XmlReader }
 import it.dtk.feed.Model.{ Feed, FeedScheduler, _ }
@@ -17,6 +16,7 @@ import org.apache.tika.parser.txt.TXTParser
 import org.apache.tika.parser.{ ParseContext, Parser }
 import org.apache.tika.sax.BodyContentHandler
 import org.joda.time.DateTime
+import org.jsoup.Jsoup
 import play.api.libs.ws.WSResponse
 import play.api.libs.ws.ning.NingWSClient
 
@@ -24,12 +24,10 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.util._
 
 /**
  * Created by fabiofumarola on 05/10/15.
  */
-
 object FeedUtil {
 
   type pageText = String
@@ -51,44 +49,71 @@ object FeedUtil {
     }
   }
 
-  def processFeedEntry(feed: Feed, html: String, contentType: String): ProcessedFeed = {
+  def textFromHtml(html: String): String = {
+    val doc = Jsoup.parse(html)
+    doc.text()
+  }
+
+  def getOutLinks(html: String): Map[String, String] = {
+    val doc = Jsoup.parse(html)
+    val links = doc.select("a[href]")
+    links.map(link => (link.attr("abs:href"), link.text())).toMap
+  }
+
+  def processFeedEntry(feed: Feed, html: String, contentType: String): (ProcessedFeed, PageData) = {
     val (pageText, lang, authors) = processTika(feed, html, contentType)
 
     Gander.extract(html) match {
 
       case Some(pageInfo) =>
-        ProcessedFeed(
-          uri = feed.uri,
-          processedTitle = pageInfo.processedTitle,
-          summary = feed.description,
-          metaDescription = pageInfo.metaDescription,
-          categories = feed.categories,
-          metaKeywords = pageInfo.metaKeywords.split(",").map(_.trim).toList,
-          imageUrl = feed.imageUrl,
-          publishDate = pageInfo.publishDate.map(d => new DateTime(d.getTime)).getOrElse(feed.date),
-          language = pageInfo.lang.getOrElse(lang),
-          html = html,
-          cleanedText = pageInfo.cleanedText.getOrElse(""),
-          pageText = pageText,
-          authors = authors,
-          openGraphData = Some(pageInfo.openGraphData)
+        (
+          ProcessedFeed(
+            uri = feed.uri,
+            processedTitle = pageInfo.processedTitle,
+            summary = feed.description,
+            metaDescription = pageInfo.metaDescription,
+            categories = feed.categories,
+            metaKeywords = pageInfo.metaKeywords.split(",").map(_.trim).toList,
+            imageUrl = feed.imageUrl,
+            publishDate = pageInfo.publishDate.map(d => new DateTime(d.getTime)).getOrElse(feed.date),
+            language = pageInfo.lang.getOrElse(lang),
+            cleanedText = pageInfo.cleanedText.getOrElse(""),
+            pageText = pageText,
+            authors = authors,
+            openGraphData = Some(pageInfo.openGraphData)
+          ),
+            PageData(
+              url = feed.uri,
+              html = html,
+              outlinks = getOutLinks(html),
+              title = feed.title,
+              cleanedText = pageInfo.cleanedText.getOrElse(pageText)
+            )
         )
       case None =>
-        ProcessedFeed(
-          uri = feed.uri,
-          processedTitle = feed.title,
-          summary = feed.description,
-          metaDescription = "",
-          categories = feed.categories,
-          metaKeywords = List.empty,
-          imageUrl = feed.imageUrl,
-          publishDate = feed.date,
-          language = lang,
-          html = html,
-          cleanedText = "",
-          pageText = pageText,
-          authors = authors,
-          openGraphData = None
+        (
+          ProcessedFeed(
+            uri = feed.uri,
+            processedTitle = feed.title,
+            summary = feed.description,
+            metaDescription = "",
+            categories = feed.categories,
+            metaKeywords = List.empty,
+            imageUrl = feed.imageUrl,
+            publishDate = feed.date,
+            language = lang,
+            cleanedText = "",
+            pageText = pageText,
+            authors = authors,
+            openGraphData = None
+          ),
+            PageData(
+              url = feed.uri,
+              html = html,
+              outlinks = getOutLinks(html),
+              title = feed.title,
+              cleanedText = pageText
+            )
         )
     }
   }

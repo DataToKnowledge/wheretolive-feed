@@ -36,7 +36,13 @@ class FeedProcessor extends Actor {
 
   val ws = new HttpDownloader
   val kafkaProd = new FeedProducerKafka(
-    topic = config.as[String]("kafka.producer.topic"),
+    topic = config.as[String]("kafka.producer.topicFeed"),
+    clientId = config.as[String]("kafka.producer.clientId"),
+    brokersList = config.as[String]("kafka.brokers")
+  )
+
+  val kafkaPageProd = new FeedProducerKafka(
+    topic = config.as[String]("kafka.producer.topicPage"),
     clientId = config.as[String]("kafka.producer.clientId"),
     brokersList = config.as[String]("kafka.brokers")
   )
@@ -47,8 +53,8 @@ class FeedProcessor extends Actor {
       val send = sender
       log.debug(s"got message $json")
       parse(json).extractOpt[Feed] match {
-        case Some(feed) =>
 
+        case Some(feed) =>
           log.debug(s"parsed feed $feed")
           ws.download(feed.uri) onComplete {
 
@@ -56,8 +62,9 @@ class FeedProcessor extends Actor {
               val contentType = response.header("Content-Type").getOrElse("")
               log.debug(s"download page ${feed.uri} with status ${response.statusText}")
               val html = response.body
-              val processedFeed = FeedUtil.processFeedEntry(feed, html, contentType)
+              val (processedFeed, pageData) = FeedUtil.processFeedEntry(feed, html, contentType)
               kafkaProd.sendSync(processedFeed)
+              kafkaPageProd.sendSync(pageData)
               log.debug(s"send message to kafka for uri ${feed.uri}")
               send ! StreamFSM.Processed
 
@@ -75,6 +82,7 @@ class FeedProcessor extends Actor {
   override def postStop(): Unit = {
     ws.close()
     kafkaProd.close()
+    kafkaPageProd.close()
   }
 
 }

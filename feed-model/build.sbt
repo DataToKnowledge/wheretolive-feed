@@ -2,7 +2,7 @@ name := "feed-model"
 
 organization := "it.datatoknowledge"
 
-version := "0.2.0"
+version := "0.3.0"
 
 scalaVersion := "2.11.7"
 
@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-jackson" % "3.3.0",
   "org.json4s" %% "json4s-ext" % "3.3.0",
   "com.intenthq" %% "gander" % "1.2",
-  "com.rometools" % "rome" % "1.5.1"
+  "com.rometools" % "rome" % "1.5.1",
+  "org.jsoup" % "jsoup" % "1.8.3"
 )
 
 libraryDependencies ++= Seq(
