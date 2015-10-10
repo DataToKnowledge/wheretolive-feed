@@ -42,7 +42,7 @@ class FeedProcessor(kafkaProd: FeedProducerKafka,
 
     case json: String =>
       sender ! StreamFSM.Processed
-      
+
       log.info(s"got message ${json.substring(0, 50)}")
       parse(json).extractOpt[Feed] match {
 
