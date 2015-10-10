@@ -49,7 +49,8 @@ class Frontend extends Actor {
     case EvaluateFeeds =>
       (clusterProxy ? ClusterClient.Send(masterActorName, EvaluateFeeds, false)).mapTo[Result] pipeTo sender()
 
-
+    case ListWorkers =>
+      (clusterProxy ? ClusterClient.Send(masterActorName, ListWorkers, false)).mapTo[Result] pipeTo sender()
   }
 }
 

@@ -64,14 +64,14 @@ class Master extends PersistentActor {
 
     case Start(source) => startWorker(source)
 
-    case DeleteFeed(id) =>
-      log.info("processing delete {}", id)
-      val msg = if (state.contains(id)) {
-        state -= id
+    case DeleteFeed(source: FeedInfo) =>
+      log.info("processing delete {}", source)
+      val msg = if (state.contains(source.url)) {
+        state -= source.url
         saveSnapshot(state)
-        s"removed feed ${id}"
+        s"removed feed ${source.url}"
       }
-      else s"feed ${id} does not exist"
+      else s"feed ${source.url} does not exist"
 
       sender() ! Result(msg)
 
@@ -100,6 +100,8 @@ class Master extends PersistentActor {
       state.values.foreach(source => context.system.scheduler.scheduleOnce(1 second, self, Start(source)))
       sender() ! Result(s"rescheduled ${state.size} feeds")
 
+    case ListWorkers =>
+      sender() ! WorkersList(backends.map(_.path.address.toString))
   }
 
   def startWorker(source: FeedInfo): Unit = {

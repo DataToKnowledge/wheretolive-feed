@@ -21,7 +21,7 @@ object BootProcessor extends App {
       """
         |specify the parameter for network, processor where <...> should be replaced
         | to select the network interface -> network
-        | processor -> processor <network_name>""".stripMargin)
+        | processor -> processor <network_name> numberStreams""".stripMargin)
     sys.exit(1)
   }
 
@@ -33,7 +33,8 @@ object BootProcessor extends App {
 
     case "processor" =>
       val ethName = args(1)
-      Starter.startFeedProcessor(ethName)
+      val numberStreams = args(2).toInt
+      Starter.startFeedProcessor(ethName, numberStreams)
 
     case s: String =>
       println(s"unrecognized parameter $s")
@@ -42,7 +43,7 @@ object BootProcessor extends App {
 
 object Starter {
 
-  def startFeedProcessor(ethName: String): Unit = {
+  def startFeedProcessor(ethName: String, numberStreams: Int): Unit = {
     val config = ConfigFactory.load("application.conf")
     val appName = config.as[String]("app.name")
     val zkConnect = config.as[String]("kafka.zk-address")
@@ -73,7 +74,7 @@ object Starter {
 
     val feedProcessorRouter = system.actorOf(FeedProcessor.props(kafkaProd, kafkaPageProd, ws))
 
-    val feedConsumer = new ConsumerKafka(system, zkConnect, topic, 4,
+    val feedConsumer = new ConsumerKafka(system, zkConnect, topic, numberStreams,
       consumerGroup, feedProcessorRouter)
 
     feedConsumer.start().foreach(_ => println("started Feed Processor"))

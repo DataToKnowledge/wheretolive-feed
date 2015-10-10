@@ -1,6 +1,6 @@
 name := "feed-api"
 
-version := "0.2.2"
+version := "0.4.0"
 
 scalaVersion := "2.11.7"
 

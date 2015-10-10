@@ -65,7 +65,7 @@ $ docker run -d -it --name=feed-api \
 
 ```bash
 
-$ docker run -d -it --name=processor-1 data2knowledge/feed-processor:0.3.0 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092" -Dkafka.consumer.auto.offset.reset="largest"
+$ docker run -d -it --name=processor-2 data2knowledge/feed-processor:0.3.1 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092" -Dkafka.consumer.auto.offset.reset="largest"
 
 ```
 

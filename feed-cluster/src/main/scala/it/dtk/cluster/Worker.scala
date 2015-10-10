@@ -1,18 +1,13 @@
 package it.dtk.cluster
 
-import java.net.URL
-
 import akka.actor._
-import akka.cluster.{ Member, MemberStatus, Cluster }
-import akka.cluster.ClusterEvent.{ CurrentClusterState, MemberUp }
+import akka.cluster.ClusterEvent.{CurrentClusterState, MemberUp}
+import akka.cluster.{Cluster, Member, MemberStatus}
 import akka.event.Logging
 import it.dtk.cluster.BackendWorkerProtocol._
-import com.rometools.rome.io.{ SyndFeedInput, XmlReader }
 import it.dtk.feed.Model.FeedInfo
 import it.dtk.kafka.FeedProducerKafka
 import net.ceedubs.ficus.Ficus._
-import scala.collection.JavaConversions._
-import it.dtk.feed._
 
 object BackendWorkerProtocol {
   case class FeedJob(source: FeedInfo)
@@ -66,6 +61,7 @@ class Worker extends Actor {
 
 class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
   val log = Logging(context.system.eventStream, this.getClass.getCanonicalName)
+  import com.github.nscala_time.time.Imports._
   import it.dtk.feed.logic._
 
   override def receive: Receive = {
@@ -73,16 +69,22 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
     case FeedJob(source) =>
       log.info("start worker for feed {}", source.url)
 
+      val timedSource = if (source.dateLastFeed.isEmpty)
+        source.copy(dateLastFeed = Some(DateTime.yesterday))
+      else source
+
       val lastUrls = source.last100Urls.toSet
 
       try {
         val filtered = FeedUtil.parseFeed(source.url)
-          .filterNot(f => lastUrls.contains(f.uri))
+          .filter(f => f.date > timedSource.dateLastFeed.get)
 
         filtered.foreach { f =>
           log.debug(f.toString)
           producer.sendSync(f)
         }
+
+        val lastTime = filtered.map(_.date).max
 
         val filteredUrl = filtered.map(_.uri).toSet
         val nextScheduler = FeedSchedulerUtil.when(source.fScheduler, filteredUrl.size)
@@ -94,6 +96,7 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
           source.copy(
             last100Urls = nextIterationUrls,
             countUrl = source.countUrl + filteredUrl.size,
+            dateLastFeed = Some(lastTime),
             fScheduler = nextScheduler))
       }
       catch {

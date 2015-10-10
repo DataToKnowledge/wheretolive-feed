@@ -13,11 +13,10 @@ object Model {
   case class FeedScheduler(time: FiniteDuration = 10 minutes,
                            delta: FiniteDuration = 2 minutes)
 
-  case class FeedSource(url: String)
-
   case class FeedInfo(url: String,
                       added: Long,
                       last100Urls: List[String] = List.empty,
+                      dateLastFeed: Option[DateTime] = None,
                       countUrl: Long = 0,
                       fScheduler: FeedScheduler = FeedScheduler())
 
