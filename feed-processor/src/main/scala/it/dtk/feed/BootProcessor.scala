@@ -71,7 +71,7 @@ object Starter {
 
     //######### Kafka
 
-    val feedProcessorRouter = system.actorOf(FeedProcessor.routerProps(kafkaProd, kafkaPageProd, ws, 2))
+    val feedProcessorRouter = system.actorOf(FeedProcessor.props(kafkaProd, kafkaPageProd, ws))
 
     val feedConsumer = new ConsumerKafka(system, zkConnect, topic, 4,
       consumerGroup, feedProcessorRouter)
