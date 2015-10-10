@@ -2,7 +2,8 @@ package it.dtk.feed
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import it.dtk.kafka.ConsumerKafka
+import it.dtk.feed.logic.HttpDownloader
+import it.dtk.kafka.{ FeedProducerKafka, ConsumerKafka }
 import it.dtk.util.HostIp
 import net.ceedubs.ficus.Ficus._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -53,7 +54,24 @@ object Starter {
 
     implicit val system = ActorSystem(appName, config)
 
-    val feedProcessorRouter = system.actorOf(FeedProcessor.routerProps(2))
+    //######## Kafka
+    val kafkaProd = new FeedProducerKafka(
+      topic = config.as[String]("kafka.producer.topicFeed"),
+      clientId = config.as[String]("kafka.producer.clientId"),
+      brokersList = config.as[String]("kafka.brokers")
+    )
+
+    val kafkaPageProd = new FeedProducerKafka(
+      topic = config.as[String]("kafka.producer.topicPage"),
+      clientId = config.as[String]("kafka.producer.clientId"),
+      brokersList = config.as[String]("kafka.brokers")
+    )
+
+    val ws = new HttpDownloader
+
+    //######### Kafka
+
+    val feedProcessorRouter = system.actorOf(FeedProcessor.routerProps(kafkaProd, kafkaPageProd, ws, 2))
 
     val feedConsumer = new ConsumerKafka(system, zkConnect, topic,
       consumerGroup, feedProcessorRouter)
@@ -62,6 +80,9 @@ object Starter {
 
     sys.addShutdownHook {
       Await.ready(feedConsumer.stop(), 5 seconds)
+      kafkaProd.close()
+      kafkaPageProd.close()
+      ws.close()
       system.shutdown()
     }
   }

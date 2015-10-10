@@ -45,7 +45,7 @@ please consider to give the right name of the zookeeper and kafka.
 
 we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"`
 
-**3. Start an instance of the Api**
+**4. Start an instance of the Api**
 
 ```bash
 
@@ -61,11 +61,11 @@ $ docker run -d -it --name=feed-api \
     data2knowledge/feed-api:0.2.2 192.160.0.3 5000
 ```
 
-**4. Start a processor
+**5. Start a processor**
 
 ```bash
 
-$ docker run -d -it --name=processor-3 data2knowledge/feed-processor:0.2.2 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092" -Dkafka.consumer.auto.offset.reset="largest"
+$ docker run --rm -it --name=processor-1 data2knowledge/feed-processor:0.2.3 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092" -Dkafka.consumer.auto.offset.reset="largest"
 
 ```
 
@@ -78,7 +78,7 @@ setup a
 ```
 
 **2. Run with Sbt ~reStart**
-
+ 
 For some subfolder in the main folder it is possible to start a microservice.
 
 ##### Start the Master
@@ -146,7 +146,7 @@ $ docker run --rm -it --name worker1 \
 
 we can specify a config file at runtime using `-Dconfig.file="config/myapp.conf"`
 
-**3. Start an instance of the Api**
+**4. Start an instance of the Api**
 
 ```bash
 

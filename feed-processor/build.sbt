@@ -2,7 +2,7 @@ name := "feed-processor"
 
 organization := "it.datatoknowledge"
 
-version := "0.2.3"
+version := "0.2.4"
 
 scalaVersion := "2.11.7"
 
