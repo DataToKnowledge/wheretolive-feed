@@ -41,8 +41,9 @@ class FeedProcessor(kafkaProd: FeedProducerKafka,
   override def receive = {
 
     case json: String =>
-      val send = sender
-      log.info(s"got message ${json.substring(0,50)}")
+      sender ! StreamFSM.Processed
+      
+      log.info(s"got message ${json.substring(0, 50)}")
       parse(json).extractOpt[Feed] match {
 
         case Some(feed) =>
@@ -57,16 +58,13 @@ class FeedProcessor(kafkaProd: FeedProducerKafka,
               kafkaProd.sendSync(processedFeed)
               kafkaPageProd.sendSync(pageData)
               log.info(s"saved processed feed with uri ${feed.uri} to kafka")
-              send ! StreamFSM.Processed
 
             case Failure(ex) =>
               log.error(ex, s"cannot process feed with url ${feed.uri}")
-              send ! StreamFSM.Processed
           }
 
         case None =>
           log.error(s"cannot process feed message $json")
-          send ! StreamFSM.Processed
       }
   }
 
