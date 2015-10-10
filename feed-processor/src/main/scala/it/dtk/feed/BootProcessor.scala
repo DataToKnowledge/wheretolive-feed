@@ -73,7 +73,7 @@ object Starter {
 
     val feedProcessorRouter = system.actorOf(FeedProcessor.routerProps(kafkaProd, kafkaPageProd, ws, 2))
 
-    val feedConsumer = new ConsumerKafka(system, zkConnect, topic,
+    val feedConsumer = new ConsumerKafka(system, zkConnect, topic,2,
       consumerGroup, feedProcessorRouter)
 
     feedConsumer.start().foreach(_ => println("started Feed Processor"))

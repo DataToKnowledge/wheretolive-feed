@@ -14,6 +14,7 @@ import scala.concurrent.Future
 class ConsumerKafka(system: ActorSystem,
                     zkConnect: String,
                     topic: String,
+                    streamsPerPartion: Int,
                     consumerGroup: String,
                     receiver: ActorRef) {
 
@@ -27,7 +28,7 @@ class ConsumerKafka(system: ActorSystem,
     zkConnect = zkConnect,
     topic = topic,
     group = consumerGroup,
-    streams = 3,
+    streams = streamsPerPartion,
     keyDecoder = new StringDecoder(),
     msgDecoder = new StringDecoder(),
     receiver = receiver,
