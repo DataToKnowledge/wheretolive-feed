@@ -10,6 +10,7 @@ import it.dtk.cluster.FrontendMasterProtocol._
 import it.dtk.feed.Model._
 import org.json4s._
 import org.json4s.jackson.Serialization
+import spray.http.MediaTypes
 import spray.httpx.Json4sJacksonSupport
 import spray.routing.{ HttpServiceActor, HttpService }
 
@@ -27,6 +28,7 @@ case class FeedSource(
  */
 @Api(value = "/feed", description = "Operations about feeds", position = 0)
 trait FeedApi extends HttpService with Json4sJacksonSupport {
+  import MediaTypes._
 
   val routes = addRoute ~ addListRoute ~ listFeedRoute ~ deleteFeed ~ snapshotFeeds ~ evaluateFeeds ~ site
 
@@ -42,7 +44,9 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
   def addRoute = post {
     path(pathPrefix / "add")
     entity(as[FeedSource]) { feed =>
-      complete(addFeed(feed))
+      respondWithMediaType(`application/json`) {
+        complete(addFeed(feed))
+      }
     }
   }
 
@@ -53,14 +57,18 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
   def addListRoute = post {
     path(pathPrefix / "adds")
     entity(as[List[FeedSource]]) { list =>
-      complete(addFeeds(list))
+      respondWithMediaType(`application/json`) {
+        complete(addFeeds(list))
+      }
     }
   }
 
   @ApiOperation(value = "List all the feeds", response = classOf[ListFeeds], notes = "", nickname = "listFeeds", httpMethod = "GET")
   def listFeedRoute = get {
     path(pathPrefix / "list")
-    complete(listFeeds())
+    respondWithMediaType(`application/json`) {
+      complete(listFeeds())
+    }
   }
 
   @ApiOperation(value = "Delete a feed", notes = "", nickname = "delFeed", httpMethod = "POST")
@@ -70,27 +78,35 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
   def deleteFeed = post {
     path(pathPrefix / "delete")
     entity(as[FeedSource]) { feed =>
-      complete(delFeed(feed))
+      respondWithMediaType(`application/json`) {
+        complete(delFeed(feed))
+      }
     }
   }
 
   @ApiOperation(value = "Snapshot the feeds", notes = "", nickname = "snapFeeds", httpMethod = "POST")
   def snapshotFeeds = post {
     path(pathPrefix / "snapshot") {
-      complete(snapFeeds())
+      respondWithMediaType(`application/json`) {
+        complete(snapFeeds())
+      }
     }
   }
 
   @ApiOperation(value = "evaluate all the the feeds", notes = "", nickname = "evalFeeds", httpMethod = "POST")
   def evaluateFeeds = post {
     path(pathPrefix / "evalfeeds") {
-      complete(evalFeeds())
+      respondWithMediaType(`application/json`) {
+        complete(evalFeeds())
+      }
     }
   }
 
   def lWorkers = get {
     path(pathPrefix / "workers") {
-      complete(listWorkers())
+      respondWithMediaType(`application/json`) {
+        complete(listWorkers())
+      }
     }
   }
 
