@@ -52,7 +52,8 @@ object Starter {
     println(s"application $appName online with ip $ipAddress")
 
     implicit val system = ActorSystem(appName, config)
-    val feedProcessorRouter = system.actorOf(FeedProcessor.routerProps(3))
+
+    val feedProcessorRouter = system.actorOf(FeedProcessor.routerProps(2))
 
     val feedConsumer = new ConsumerKafka(system, zkConnect, topic,
       consumerGroup, feedProcessorRouter)

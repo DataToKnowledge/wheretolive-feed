@@ -65,7 +65,7 @@ $ docker run -d -it --name=feed-api \
 
 ```bash
 
-$ docker run -d -it --name=processor-3 data2knowledge/feed-processor:0.2.1 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
+$ docker run -d -it --name=processor-3 data2knowledge/feed-processor:0.2.2 processor ethwe -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092" -Dkafka.consumer.auto.offset.reset="largest"
 
 ```
 
@@ -170,7 +170,7 @@ docker run -it -d -p 8888:8888 -e ZOOKEEPERS="192.168.99.100:2181" chatu/trifect
 ```bash
 ./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --create \
      --replication-factor 2 --partitions 3 --config delete.retention.ms=2419200000 \
-     --topic feed
+     --topic processed-feed
 ```
 
 or via alter
@@ -185,7 +185,8 @@ or via alter
 
 if delete.topic.enable is true then
 ```
- ./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" --delete --topic snapshot-feed-manager-master --config delete.topic.enable=true
+ ./kafka-topics.sh --zookeeper "zoo-1:2181,zoo-2:2181,zoo-3:2181" \
+   --delete --topic processed-feed --config delete.topic.enable=true
 ```
 
 otherwise, we can setup the retention to 1 ms
