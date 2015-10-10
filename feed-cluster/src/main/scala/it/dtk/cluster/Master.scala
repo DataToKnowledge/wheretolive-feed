@@ -85,6 +85,7 @@ class Master extends PersistentActor {
       backends = backends.filterNot(_ == a)
 
     case FeedJobResult(source) =>
+      state -= source.url
       state += source.url -> source
       log.info("rescheduling the job for {} in {}", source, source.fScheduler.time)
       context.system.scheduler.scheduleOnce(source.fScheduler.time, self, Start(source))

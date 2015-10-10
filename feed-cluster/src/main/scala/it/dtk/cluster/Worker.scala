@@ -76,7 +76,7 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
       val lastUrls = source.last100Urls.toSet
 
       try {
-        val filtered = FeedUtil.parseFeed(source.url)
+        val filtered = FeedUtil.parseFeed(timedSource.url)
           .filter(f => f.date > timedSource.dateLastFeed.get)
 
         filtered.foreach { f =>
@@ -87,23 +87,23 @@ class WorkExecutor(val producer: FeedProducerKafka) extends Actor {
         val lastTime = filtered.map(_.date).max
 
         val filteredUrl = filtered.map(_.uri).toSet
-        val nextScheduler = FeedSchedulerUtil.when(source.fScheduler, filteredUrl.size)
-        log.info("extracted {} urls for feed {}", filteredUrl.size, source.url)
+        val nextScheduler = FeedSchedulerUtil.when(timedSource.fScheduler, filteredUrl.size)
+        log.info("extracted {} urls for feed {}", filteredUrl.size, timedSource.url)
 
-        val nextIterationUrls = (filteredUrl.toList ++ source.last100Urls).take(100)
+        val nextIterationUrls = (filteredUrl.toList ++ timedSource.last100Urls).take(100)
 
         sender() ! FeedJobResult(
-          source.copy(
+          timedSource.copy(
             last100Urls = nextIterationUrls,
             countUrl = source.countUrl + filteredUrl.size,
-            dateLastFeed = Some(lastTime),
+            dateLastFeed = Option(lastTime),
             fScheduler = nextScheduler))
       }
       catch {
         case ex: Throwable =>
-          log.error(ex, "error processing feed {}", source.url)
-          val nextScheduler = FeedSchedulerUtil.gotException(source.fScheduler)
-          sender() ! FeedJobResult(source.copy(fScheduler = nextScheduler))
+          log.error(ex, "error processing feed {}", timedSource.url)
+          val nextScheduler = FeedSchedulerUtil.gotException(timedSource.fScheduler)
+          sender() ! FeedJobResult(timedSource.copy(fScheduler = nextScheduler))
       }
       self ! PoisonPill
   }

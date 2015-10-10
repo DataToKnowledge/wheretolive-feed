@@ -58,7 +58,7 @@ Example
 ```bash
 
 $ docker run -d -it --name=feed-api \
-    data2knowledge/feed-api:0.4.0 192.160.0.3 5000
+    data2knowledge/feed-api:0.4.1 192.160.0.3 5000
 ```
 
 **5. Start a processor**
