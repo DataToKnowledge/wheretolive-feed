@@ -42,7 +42,7 @@ class FeedProcessor(kafkaProd: FeedProducerKafka,
 
     case json: String =>
       val send = sender
-      log.info(s"got message $json")
+      log.info(s"got message ${json.substring(0,50)}")
       parse(json).extractOpt[Feed] match {
 
         case Some(feed) =>
@@ -51,7 +51,7 @@ class FeedProcessor(kafkaProd: FeedProducerKafka,
 
             case Success(response) =>
               val contentType = response.header("Content-Type").getOrElse("")
-              log.info(s"downloaded page ${feed.uri} with status ${response.statusText}")
+              log.info(s"downloaded with status ${response.statusText} page ${feed.uri}")
               val html = response.body
               val (processedFeed, pageData) = FeedUtil.processFeedEntry(feed, html, contentType)
               kafkaProd.sendSync(processedFeed)
