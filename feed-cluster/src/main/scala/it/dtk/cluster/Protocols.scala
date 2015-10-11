@@ -13,7 +13,7 @@ class Protocols {
 object FrontendMasterProtocol {
 
   case class AddFeed(source: FeedInfo)
-  case class DeleteFeed(source: FeedInfo)
+  case class DeleteFeed(url: String)
   case class Result(msg: String)
   case class ListFeeds(data: Map[String, FeedInfo] = Map.empty)
   case object ListWorkers

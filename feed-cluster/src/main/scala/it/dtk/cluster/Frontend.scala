@@ -31,6 +31,7 @@ class Frontend extends Actor {
   val masterActorName = config.as[String]("app.master-actor")
 
   override def receive: Receive = {
+
     case add: AddFeed =>
       (clusterProxy ? ClusterClient.Send(masterActorName, add, false)).mapTo[Result] pipeTo sender()
 

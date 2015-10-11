@@ -30,7 +30,7 @@ case class FeedSource(
 trait FeedApi extends HttpService with Json4sJacksonSupport {
   import MediaTypes._
 
-  val routes = addRoute ~ addListRoute ~ listFeedRoute ~ deleteFeed ~ snapshotFeeds ~ evaluateFeeds ~ site
+  val routes = addRoute ~ addListRoute ~ listFeedRoute ~ deleteFeed ~ snapshotFeeds ~ evaluateFeeds ~ lWorkers ~ site
 
   val site = path("swagger") { getFromResource("swagger-ui/index.html") } ~
     getFromResourceDirectory("swagger-ui")
@@ -160,8 +160,7 @@ class FeedService(val feedsManagerActor: ActorRef) extends HttpServiceActor with
   }
 
   override def delFeed(source: FeedSource): Future[Result] = {
-    val feedInfo = FeedInfo(source.url, System.currentTimeMillis())
-    (feedsManagerActor ? DeleteFeed(feedInfo)).mapTo[Result]
+    (feedsManagerActor ? DeleteFeed(source.url)).mapTo[Result]
   }
 
   override def snapFeeds(): Future[Result] =

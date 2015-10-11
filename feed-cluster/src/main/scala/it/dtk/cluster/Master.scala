@@ -64,14 +64,14 @@ class Master extends PersistentActor {
 
     case Start(source) => startWorker(source)
 
-    case DeleteFeed(source: FeedInfo) =>
-      log.info("processing delete {}", source)
-      val msg = if (state.contains(source.url)) {
-        state -= source.url
+    case DeleteFeed(url: String) =>
+      log.info("processing delete {}", url)
+      val msg = if (state.contains(url)) {
+        state -= url
         saveSnapshot(state)
-        s"removed feed ${source.url}"
+        s"removed feed ${url}"
       }
-      else s"feed ${source.url} does not exist"
+      else s"feed ${url} does not exist"
 
       sender() ! Result(msg)
 

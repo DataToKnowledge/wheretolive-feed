@@ -18,7 +18,7 @@ $ docker run --rm -it data2knowledge/feed-cluster:0.3.1 network
 
 ```bash
 
-$ docker run -d -it --name feed-master data2knowledge/feed-cluster:0.4.0 master ethwe \
+$ docker run -d -it --name feed-master data2knowledge/feed-cluster:0.4.1 master ethwe \
   -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
   -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 
@@ -29,7 +29,7 @@ We can run more worker on different machines.
 
 ```bash
 
-$ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.4.0 worker ethwe <master_ip> <master_port> \
+$ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.4.1 worker ethwe <master_ip> <master_port> \
   -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
   -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 ```
@@ -37,7 +37,7 @@ $ docker run -d -it --name <name-worker> data2knowledge/feed-cluster:0.4.0 worke
 For example
 ```bash
 
-  docker run -d -it --name feed-worker-1 data2knowledge/feed-cluster:0.4.0 worker ethwe 192.160.0.3 5000 \
+  docker run -d -it --name feed-worker-4 data2knowledge/feed-cluster:0.4.1 worker ethwe 192.160.0.3 5000 \
     -Dkafka.zk-address="zoo-1:2181,zoo-2:2181,zoo-3:2181" \
     -Dkafka.brokers="kafka-1:9092,kafka-2:9092,kafka-3:9092"
 ```
