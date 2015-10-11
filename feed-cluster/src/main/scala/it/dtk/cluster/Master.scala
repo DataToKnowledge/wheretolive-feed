@@ -1,17 +1,16 @@
 package it.dtk.cluster
 
-import akka.actor.{ ActorSystem, ActorRef, Props, Terminated }
+import akka.actor.{ActorRef, Props, Terminated}
 import akka.cluster.Cluster
 import akka.contrib.pattern.ClusterReceptionistExtension
 import akka.event.Logging
-import akka.persistence.{ PersistentActor, RecoveryCompleted, SnapshotMetadata, SnapshotOffer }
-import com.typesafe.config.ConfigFactory
+import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
 import it.dtk.cluster.BackendWorkerProtocol._
 import it.dtk.cluster.FrontendMasterProtocol._
 import it.dtk.feed.Model.FeedInfo
 import org.joda.time.DateTime
 import scala.concurrent.duration._
-import net.ceedubs.ficus.Ficus._
+
 
 object Master {
   /**

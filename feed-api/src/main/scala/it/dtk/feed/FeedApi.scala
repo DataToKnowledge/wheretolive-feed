@@ -23,6 +23,8 @@ import scala.reflect.runtime.universe._
 case class FeedSource(
   @(ApiModelProperty @field)(value = "the url of the feed") url: String)
 
+case class DeleteSource(feedUrl: String)
+
 /**
  * Created by fabiofumarola on 10/08/15.
  */
@@ -73,11 +75,11 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
 
   @ApiOperation(value = "Delete a feed", notes = "", nickname = "delFeed", httpMethod = "POST")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "body", value = "Feed with url", dataType = "it.dtk.feed.FeedSource", required = true, paramType = "body", allowMultiple = false)
+    new ApiImplicitParam(name = "body", value = "Feed with url", dataType = "it.dtk.feed.DeleteSource", required = true, paramType = "body", allowMultiple = false)
   ))
   def deleteFeed = post {
     path(pathPrefix / "delete")
-    entity(as[FeedSource]) { feed =>
+    entity(as[DeleteSource]) { feed =>
       respondWithMediaType(`application/json`) {
         complete(delFeed(feed))
       }
@@ -116,7 +118,7 @@ trait FeedApi extends HttpService with Json4sJacksonSupport {
 
   def listFeeds(): Future[ListFeeds]
 
-  def delFeed(feed: FeedSource): Future[Result]
+  def delFeed(feed: DeleteSource): Future[Result]
 
   def snapFeeds(): Future[Result]
 
@@ -145,8 +147,9 @@ class FeedService(val feedsManagerActor: ActorRef) extends HttpServiceActor with
     (feedsManagerActor ? ListFeeds()).mapTo[ListFeeds]
 
   override def addFeed(source: FeedSource): Future[Result] = {
+    import com.github.nscala_time.time.Imports._
     try {
-      val feedInfo = FeedInfo(source.url, System.currentTimeMillis())
+      val feedInfo = FeedInfo(source.url, System.currentTimeMillis(), dateLastFeed = Some(DateTime.yesterday))
       (feedsManagerActor ? AddFeed(feedInfo)).mapTo[Result]
     }
     catch {
@@ -159,8 +162,8 @@ class FeedService(val feedsManagerActor: ActorRef) extends HttpServiceActor with
     Future.sequence(result)
   }
 
-  override def delFeed(source: FeedSource): Future[Result] = {
-    (feedsManagerActor ? DeleteFeed(source.url)).mapTo[Result]
+  override def delFeed(source: DeleteSource): Future[Result] = {
+    (feedsManagerActor ? DeleteFeed(source.feedUrl)).mapTo[Result]
   }
 
   override def snapFeeds(): Future[Result] =
